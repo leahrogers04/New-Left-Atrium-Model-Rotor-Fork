@@ -39,7 +39,7 @@ Cross200X200
 
 Place the Nodes and Muscle file you would like to run here.
 
---InputFileName = IdealLeftAtrium2.3K
+--InputFileName = 10X10
 
 Name of previous run files that were stored in GitHub.
 test
@@ -63,7 +63,7 @@ It should be a float.
 Set the size of the node spheres here. It is scaled by the RadiusOfLeftAtrium. A good value is 0.01.
 It should be a float.
 
---NodeRadiusAdjustment = 0.005;
+--NodeRadiusAdjustment = 0.01;
 
 Set the size of a point drawn if shperes are turned off but you still want to see the node. A good value is 5.0 to 10.0.
 It should be a float.

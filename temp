@@ -1,0 +1,6 @@
+#include "header.h"
+#include "cudaFunctions.h"
+#include "callBackFunctions.h"
+#include "setNodesandMuscles.h"
+#include "viewDrawAndTerminalFunctions.h"
+
