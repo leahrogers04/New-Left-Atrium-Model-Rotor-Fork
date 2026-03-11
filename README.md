@@ -24,6 +24,7 @@
 ### Spiral Wave Reentry --------------- AFib Like Action
 <img src="ReadMeImages/SpiralWaves.png" width=30% height=30% class='center'></img>
 <img src="ReadMeImages/AF.png" width=30% height=30% class='center'></img>
+<img src="ReadMeImages/RealModel.png" width=30% height=30% class='center'></img>
 
 <a id="project-aims"></a>  
 ## Project Aims
