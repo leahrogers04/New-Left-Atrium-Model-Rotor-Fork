@@ -52,10 +52,11 @@ The LA was chosen for modeling due to its role in complex arrhythmias [17-20]. O
 <a id="videos"></a>
 ## Videos
 
-Video Micro-Reenter: 		https://youtu.be/llIGgZSiTnE  
-Video Macro-Reenter: 		https://youtu.be/3m_7lrOe2cw  
+Video Micro-Reenter: 					https://youtu.be/llIGgZSiTnE  
+Video Macro-Reenter: 					https://youtu.be/3m_7lrOe2cw  
 Video Spiral Wave-Reentry: 				https://youtu.be/c-ID603Vm9Q  
-Video AFib-Like: 			https://youtu.be/GG6Q7uG8OhQ   
+Video AFib-Like: 						https://youtu.be/GG6Q7uG8OhQ   
+Video Realistic Topology:				https://www.youtube.com/watch?v=y_ju9k7Y6So
 
 <a id="installation"></a>
 ## Installation
