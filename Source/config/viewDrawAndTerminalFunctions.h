@@ -1036,6 +1036,17 @@ void createGUI()
     // Utility functions
     if (ImGui::CollapsingHeader("Utilities"))
     {
+		if (ImGui::Button("Save Binary"))
+		{
+			saveBinary();
+		}
+		if (ImGui::IsItemHovered())
+		{
+			ImGui::BeginTooltip();
+			ImGui::Text("(Ctrl + Shift + S)\nSave node/muscle attributes to\n<NodesMusclesFileName>.bin");
+			ImGui::EndTooltip();
+		}
+
 		//Save settings button
         if (ImGui::Button("Save Settings"))
 		{

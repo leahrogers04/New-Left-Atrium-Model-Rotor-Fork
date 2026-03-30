@@ -41,7 +41,7 @@ void readNodesFromFile()
 
 	
 	// Generating the name of the file that holds the nodes.
-	char directory[] = "../NodesMuscles/";
+	char directory[] = "../NodesMuscles/raw/";
 	strcpy(fileName, "");
 	strcat(fileName, directory);
 	strcat(fileName, NodesMusclesFileName);
@@ -264,7 +264,7 @@ void readMusclesFromFile()
 	char fileName[256];
     
 	// Generating the name of the file that holds the muscles.
-	char directory[] = "../NodesMuscles/";
+	char directory[] = "../NodesMuscles/raw/";
 	strcpy(fileName, "");
 	strcat(fileName, directory);
 	strcat(fileName, NodesMusclesFileName);

@@ -360,6 +360,7 @@ bool setMouseMuscleAttributes();
 void setEctopicBeat(int nodeId);
 void clearStdin();
 string getTimeStamp();
+void saveBinary();
 void movieOn();
 void movieOff();
 void screenShot();

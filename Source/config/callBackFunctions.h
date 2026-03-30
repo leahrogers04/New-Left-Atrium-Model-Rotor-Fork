@@ -411,6 +411,13 @@ void KeyPressed(GLFWwindow* window, int key, int scancode, int action, int mods)
 			glfwSetWindowShouldClose(window, GLFW_TRUE);
 			break;
 
+		case GLFW_KEY_S: // Ctrl + Shift + S to save binary
+			if ((mods & GLFW_MOD_CONTROL) && (mods & GLFW_MOD_SHIFT))
+			{
+				saveBinary();
+			}
+			break;
+
 		/*
 		case GLFW_KEY_F1: // F1 key to toggle run/pause
 		case GLFW_KEY_R: // r/R key to toggle run/pause
