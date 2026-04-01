@@ -90,6 +90,13 @@ void saveBinary()
 		return;
 	}
 
+	// Ensure muscle types reflect the current node typing before export.
+	if(!setMuscleTypes())
+	{
+		snprintf(BinarySaveStatusMessage, sizeof(BinarySaveStatusMessage), "Binary save failed: Unknown node type in setMuscleTypes().");
+		return;
+	}
+
 	std::string timeStamp = getTimeStamp();
 	strcpy(fileName, "../NodesMuscles/bin/");
 	strcat(fileName, NodesMusclesFileName);

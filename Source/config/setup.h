@@ -111,6 +111,11 @@ void setup()
 		readBachmannBundleFromFile();
 		readMusclesFromFile();
 		linkNodesToMuscles();
+		if(!setMuscleTypes())
+		{
+			printf("\n The simulation has been terminated.\n\n");
+			exit(0);
+		}
 		setRemainingNodeAndMuscleAttributes();
 	}
 	else

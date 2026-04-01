@@ -317,6 +317,8 @@ void checkNodes();
 void setBachmannBundleFromBlenderFile();
 void setMusclesFromBlenderFile();
 void linkNodesToMuscles();
+bool setMuscleTypeAndColor(int muscleId);
+bool setMuscleTypes();
 double croppedRandomNumber(double, double, double);
 void findRadiusAndMassOfLeftAtrium();
 void setRemainingNodeAndMuscleAttributes();

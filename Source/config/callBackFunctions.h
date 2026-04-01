@@ -124,6 +124,20 @@ int setNodeMode(nodeAttributesStructure* node, int nodeType)
 	// Set the type and color
 	node->type = nodeType;
 	node->color = getColorFromType(nodeType);
+
+	// Reclassify any muscles connected to this node so muscle colors update immediately.
+	for(int i = 0; i < MUSCLES_PER_NODE; i++)
+	{
+		int muscleId = node->muscle[i];
+		if(muscleId != -1)
+		{
+			if(!setMuscleTypeAndColor(muscleId))
+			{
+				printf("setNodeMode Error: could not update muscle %d after node type change.\n", muscleId);
+				return 0;
+			}
+		}
+	}
 	//printf("Node set to type %d with color (%f, %f, %f, %f)\n", nodeType, node->color.x, node->color.y, node->color.z, node->color.w);
 	return 1; // SUCCESS
 }
@@ -1100,12 +1114,9 @@ void myMouse(GLFWwindow* window, int button, int action, int mods)
 						Muscle[muscleId].refractoryPeriod = BaseMuscleRefractoryPeriod;
 						Muscle[muscleId].conductionVelocity = BaseMuscleConductionVelocity;
 						Muscle[muscleId].conductionDuration = Muscle[muscleId].naturalLength/Muscle[muscleId].conductionVelocity;
-						Muscle[muscleId].color.x = 0.0;
-						Muscle[muscleId].color.y = 1.0;
-						Muscle[muscleId].color.z = 0.0;
-						Muscle[muscleId].color.w = 0.0;
 						// Turning the muscle back on if it was disabled.
 						Muscle[muscleId].isEnabled = true;
+						if(!setMuscleTypeAndColor(muscleId)) return;
 						
 						checkMuscle(muscleId);		
 					}
@@ -1139,11 +1150,7 @@ void myMouse(GLFWwindow* window, int button, int action, int mods)
 									Muscle[muscleId].refractoryPeriod = BaseMuscleRefractoryPeriod;
 									Muscle[muscleId].conductionVelocity = BaseMuscleConductionVelocity;
 									Muscle[muscleId].conductionDuration = Muscle[muscleId].naturalLength/Muscle[muscleId].conductionVelocity;
-									Muscle[muscleId].color.x = 0.0;
-									Muscle[muscleId].color.y = 1.0;
-									Muscle[muscleId].color.z = 0.0;
-									Muscle[muscleId].color.w = 0.0;
-									
+									if(!setMuscleTypeAndColor(muscleId)) return;
 									// Turning the muscle back on if it was disabled.
 									Muscle[muscleId].isEnabled = true;
 									

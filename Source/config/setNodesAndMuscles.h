@@ -364,6 +364,96 @@ void linkNodesToMuscles()
 }
 
 /*
+ Returns priority for a node type when resolving mixed-type muscles.
+ Returns -1 for unknown types.
+*/
+int getTypePriority(int nodeType)
+{
+	const int PRIORITY_LA = 1;
+	const int PRIORITY_BB = 2;
+	const int PRIORITY_LAA = 3;
+	const int PRIORITY_XT = 4;
+
+	if(nodeType == NODE_TYPE_STANDARD) return PRIORITY_LA;
+	if(nodeType == NODE_TYPE_BACHMANN_BUNDLE) return PRIORITY_BB;
+	if(nodeType == NODE_TYPE_APPENDAGE) return PRIORITY_LAA;
+	if(nodeType == NODE_TYPE_SCAR_TISSUE) return PRIORITY_XT;
+	
+
+
+	return -1;
+}
+
+/*
+ Returns the display color for a muscle type.
+*/
+float4 getMuscleColorFromType(int type)
+{
+	if(type == NODE_TYPE_STANDARD) return COLOR_STANDARD;
+	if(type == NODE_TYPE_BACHMANN_BUNDLE) return COLOR_BACHMANNS_BUNDLE;
+	if(type == NODE_TYPE_APPENDAGE) return COLOR_APPENDAGE;
+	return COLOR_SCAR_TISSUE;
+}
+
+/*
+ Sets a single muscle type and color based on its endpoint node types.
+ Returns false if the muscle references an invalid or unknown node type.
+*/
+bool setMuscleTypeAndColor(int muscleId)
+{
+	if(muscleId < 0 || muscleId >= NumberOfMuscles)
+	{
+		return false;
+	}
+
+	int a = Muscle[muscleId].nodeA;
+	int b = Muscle[muscleId].nodeB;
+
+	if(a < 0 || b < 0 || a >= NumberOfNodes || b >= NumberOfNodes) //check if connecting nodes are valid
+	{
+		return false; //if invalid return false
+	}
+
+	int typeA = Node[a].type;
+	int typeB = Node[b].type;
+	int priorityA = getTypePriority(typeA);
+	int priorityB = getTypePriority(typeB);
+
+	if(priorityA < 0 || priorityB < 0)
+	{
+		printf("\n\n Unknown node type found while setting muscle %d (nodeA type=%d, nodeB type=%d).", muscleId, typeA, typeB);
+		return false;
+	}
+
+	//figures out what type the muscle should be based on the types of its endpoint nodes and the priority of those types.
+	// If the node types are the same, the muscle gets that type. If they differ, the muscle gets the type of the higher priority node.
+	int resolvedType = (typeA == typeB) ? typeA : ((priorityA >= priorityB) ? typeA : typeB);
+	Muscle[muscleId].type = resolvedType;
+	Muscle[muscleId].color = getMuscleColorFromType(resolvedType);
+
+	return true;
+}
+
+/*
+ This function sets each muscle type from its two endpoint node types.
+ Rules:
+ 1. If nodeA and nodeB have the same type, muscle gets that type.
+ 2. If they differ, choose by explicit priority (higher wins).
+*/
+bool setMuscleTypes()
+{
+	for(int i = 0; i < NumberOfMuscles; i++)
+	{
+		if(!setMuscleTypeAndColor(i))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/*
  This function: 
  1: Uses the Box-Muller method to create a standard normal random number from two uniform random numbers.
  2: Sets the standard deviation to what was input.
