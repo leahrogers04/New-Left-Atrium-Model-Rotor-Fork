@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <sstream>
+#include <math.h>
 
 
 /*
@@ -60,8 +61,15 @@ std::string getTimeStamp()
 
 /*
  Saves node/muscle attributes to one binary file using a simple fwrite layout.
- The file is named after the raw directory used for input:
- ../NodesMuscles/raw/<NodesMusclesFileName>/<NodesMusclesFileName>.bin
+ The file is written to:
+ ../NodesMuscles/bin/<NodesMusclesFileName>_<timestamp>.bin
+
+ Binary layout (version 2):
+ - version
+ - NumberOfNodes
+ - per node: type(int), position(float4), muscle[MUSCLES_PER_NODE](int)
+ - NumberOfMuscles
+ - per muscle: type(int), nodeA(int), nodeB(int), naturalLength(float)
 */
 void saveBinary()
 {
@@ -71,56 +79,63 @@ void saveBinary()
 	if(Node == NULL || Muscle == NULL)
 	{
 		printf("\n\n Node/Muscle data is not loaded.\n");
+		snprintf(BinarySaveStatusMessage, sizeof(BinarySaveStatusMessage), "Binary save failed: Node/Muscle data is not loaded.");
 		return;
 	}
 
 	if(NodesMusclesFileName[0] == '\0')
 	{
 		printf("\n\n NodesMusclesFileName is empty.\n");
+		snprintf(BinarySaveStatusMessage, sizeof(BinarySaveStatusMessage), "Binary save failed: NodesMusclesFileName is empty.");
 		return;
 	}
 
-	strcpy(fileName, "../NodesMuscles/raw/");
+	std::string timeStamp = getTimeStamp();
+	strcpy(fileName, "../NodesMuscles/bin/");
 	strcat(fileName, NodesMusclesFileName);
-	strcat(fileName, "/");
-	strcat(fileName, NodesMusclesFileName);
+	strcat(fileName, "_");
+	strcat(fileName, timeStamp.c_str());
 	strcat(fileName, ".bin");
 
 	binaryFile = fopen(fileName, "wb");
 	if(binaryFile == NULL)
 	{
 		printf("\n\n Could not create binary file %s.\n", fileName);
+		snprintf(BinarySaveStatusMessage, sizeof(BinarySaveStatusMessage), "Binary save failed: Could not create output file.");
 		return;
 	}
 
 	// Header for basic validation by future readers.
-	char magic[8] = {'S', 'V', 'T', 'B', 'I', 'N', '1', '\0'};
-	int version = 1;
-	fwrite(magic, sizeof(char), 8, binaryFile);
+	int version = 1; // Increment this if we change the binary layout in a way that is not backwards compatible.
 	fwrite(&version, sizeof(int), 1, binaryFile);
 
-	// Node record: type, position, color, connected muscle list.
+	// Save nodes.
 	fwrite(&NumberOfNodes, sizeof(int), 1, binaryFile);
 	for(int i = 0; i < NumberOfNodes; i++)
 	{
 		fwrite(&Node[i].type, sizeof(int), 1, binaryFile);
 		fwrite(&Node[i].position, sizeof(float4), 1, binaryFile);
-		fwrite(&Node[i].color, sizeof(float4), 1, binaryFile);
 		fwrite(Node[i].muscle, sizeof(int), MUSCLES_PER_NODE, binaryFile);
 	}
 
-	// Muscle record: type, connected nodes, color.
+	// Save muscles.
 	fwrite(&NumberOfMuscles, sizeof(int), 1, binaryFile);
 	for(int i = 0; i < NumberOfMuscles; i++)
 	{
+		float dx = Node[Muscle[i].nodeA].position.x - Node[Muscle[i].nodeB].position.x;
+		float dy = Node[Muscle[i].nodeA].position.y - Node[Muscle[i].nodeB].position.y;
+		float dz = Node[Muscle[i].nodeA].position.z - Node[Muscle[i].nodeB].position.z;
+		float naturalLength = sqrtf(dx*dx + dy*dy + dz*dz);
+
 		fwrite(&Muscle[i].type, sizeof(int), 1, binaryFile);
 		fwrite(&Muscle[i].nodeA, sizeof(int), 1, binaryFile);
 		fwrite(&Muscle[i].nodeB, sizeof(int), 1, binaryFile);
-		fwrite(&Muscle[i].color, sizeof(float4), 1, binaryFile);
+		fwrite(&naturalLength, sizeof(float), 1, binaryFile);
 	}
 
 	fclose(binaryFile);
 	printf("\n Binary file saved: %s\n", fileName);
+	snprintf(BinarySaveStatusMessage, sizeof(BinarySaveStatusMessage), "Binary saved successfully.");
 }
 
 #endif // UTILITIES_H

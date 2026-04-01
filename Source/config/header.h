@@ -184,6 +184,9 @@ int FrontNode = -1; // Set to -1 to flag it if it is used before it is set.
 // *** Should be stored if a runfile is saved.
 char ViewName[256] = "no view set"; 
 
+// Status line shown in GUI after saving binary files.
+char BinarySaveStatusMessage[512] = "";
+
 // These two variable get user input to adjust muscle refractory periods and conduction velocities when you are
 // in AdjustMuscleAreaMode or AdjustMuscleLineMode modes. Once they are read in, they are multiplied by the muscles 
 // refractory period and conduction velocity respectively. 

@@ -1043,8 +1043,13 @@ void createGUI()
 		if (ImGui::IsItemHovered())
 		{
 			ImGui::BeginTooltip();
-			ImGui::Text("(Ctrl + Shift + S)\nSave node/muscle attributes to\n<NodesMusclesFileName>.bin");
+			ImGui::Text("(Ctrl + Shift + S)\nSave node/muscle attributes to\n<NodesMusclesFileName>_<timestamp>.bin");
 			ImGui::EndTooltip();
+		}
+
+		if (BinarySaveStatusMessage[0] != '\0')
+		{
+			ImGui::TextWrapped("%s", BinarySaveStatusMessage);
 		}
 
 		//Save settings button
