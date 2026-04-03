@@ -694,7 +694,7 @@ void drawPicture()
 	}
 	
 	// Puts a ball at the location of the mouse if a mouse function is on.
-	if(Simulation.isInMouseFunctionMode)
+	if (Simulation.isInMouseFunctionMode)
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -735,6 +735,38 @@ void createGUI()
 
 	// Get actual viewport size -- this is the size of the window, not the size of the the openGL viewport
 	const ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+	// Compact status panel: always visible so the user knows whether Tab is in GUI mode or mouse mode.
+	ImGui::SetNextWindowPos(ImVec2(viewport->WorkPos.x + 10, viewport->WorkPos.y + 10), ImGuiCond_Always, ImVec2(0.0f, 0.0f));
+	ImGuiWindowFlags status_flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoSavedSettings;
+	ImGui::Begin("Interaction Mode", NULL, status_flags);
+	if (!Simulation.isInMouseFunctionMode)
+	{
+		ImGui::TextColored(ImVec4(0.2f, 0.9f, 0.2f, 1.0f), "GUI Mode");
+		ImGui::TextUnformatted("Mouse editing disabled");
+	}
+	else
+	{
+		ImGui::TextColored(ImVec4(1.0f, 0.75f, 0.2f, 1.0f), "Mouse Mode");
+		if (Simulation.mouseMode == MOUSE_MODE_STANDARD) ImGui::TextUnformatted("Section: Standard");
+		else if (Simulation.mouseMode == MOUSE_MODE_BACHMANNS_BUNDLE) ImGui::TextUnformatted("Section: Bachmann's Bundle");
+		else if (Simulation.mouseMode == MOUSE_MODE_APPENDAGE) ImGui::TextUnformatted("Section: Appendage");
+		else if (Simulation.mouseMode == MOUSE_MODE_SCAR_TISSUE) ImGui::TextUnformatted("Section: Scar Tissue");
+		else ImGui::TextUnformatted("Section: None");
+	}
+	ImGui::TextUnformatted("Tab: Toggle GUI/Mouse mode");
+	if (BinarySaveStatusMessage[0] != '\0')
+	{
+		ImGui::Separator();
+		ImGui::TextWrapped("%s", BinarySaveStatusMessage);
+	}
+	ImGui::End();
+
+	// Mouse mode hides the control panel to match model behavior.
+	if (Simulation.isInMouseFunctionMode)
+	{
+		return;
+	}
 
 	//Set in top right corner of the window, 10px offset from both edges
 	//ImGUICond_Always means the position will always be set to this value, regardless of previous positions
@@ -996,7 +1028,7 @@ void createGUI()
 		if (ImGui::IsItemHovered())
 		{  
 			ImGui::BeginTooltip();
-			ImGui::Text("(F7)\nLeft-click to ablate nodes\nRight-click to undo ablation");
+			ImGui::Text("(F4)\nSet selected nodes to Standard");
 			ImGui::EndTooltip();
 		}
 
@@ -1004,31 +1036,37 @@ void createGUI()
 		{
 			setMouseMode(&Simulation, MOUSE_MODE_BACHMANNS_BUNDLE);
 		}
-		if(ImGui::IsItemHovered) 
+		if(ImGui::IsItemHovered()) 
 		{ 
-			// displayTooltip("Bachmann's Bundle Mode", "Left-click to select nodes for Bachmann's Bundle\nRight-click to undo selection");
+			ImGui::BeginTooltip();
+			ImGui::Text("(F5)\nSet selected nodes to Bachmann's Bundle");
+			ImGui::EndTooltip();
 		}
 		if (ImGui::Button("Set Appendage")) 
 		{
 			setMouseMode(&Simulation, MOUSE_MODE_APPENDAGE);
 		}
-		if(ImGui::IsItemHovered) 
+		if(ImGui::IsItemHovered()) 
 		{ 
-			// displayTooltip("Bachmann's Bundle Mode", "Left-click to select nodes for Bachmann's Bundle\nRight-click to undo selection");
+			ImGui::BeginTooltip();
+			ImGui::Text("(F6)\nSet selected nodes to Appendage");
+			ImGui::EndTooltip();
 		}
 		if (ImGui::Button("Scar Tissue")) 
 		{
 			setMouseMode(&Simulation, MOUSE_MODE_SCAR_TISSUE); 
 		}
-		if(ImGui::IsItemHovered) 
+		if(ImGui::IsItemHovered()) 
 		{ 
-			// displayTooltip("Bachmann's Bundle Mode", "Left-click to select nodes for Bachmann's Bundle\nRight-click to undo selection");
+			ImGui::BeginTooltip();
+			ImGui::Text("(F7)\nSet selected nodes to Scar Tissue");
+			ImGui::EndTooltip();
 		}
 
 	}
     
     // Utility functions
-    if (ImGui::CollapsingHeader("Utilities"))
+	if (ImGui::CollapsingHeader("Utilities", ImGuiTreeNodeFlags_DefaultOpen))
     {
 		if (ImGui::Button("Save Binary"))
 		{
@@ -1069,6 +1107,11 @@ void createGUI()
 		ImGui::Text("Rotate Y-axis: w/s; Up/Down");
 		ImGui::Text("Rotate Z-axis: z/Z; Shift + Left/Right");
 		ImGui::Text("Zoom In/Out: e/E; Shift + Up/Down");
+		ImGui::Text("Toggle GUI/Mouse mode: Tab");
+		ImGui::Text("Front/Back draw: F2");
+		ImGui::Text("Show Nodes cycle: F3");
+		ImGui::Text("Section quick-select: F4/F5/F6/F7");
+		ImGui::Text("Selector size: - / = or Ctrl + Scroll");
 
 		ImGui::Text("Collapse/Expand GUI: Ctrl + h");
 		

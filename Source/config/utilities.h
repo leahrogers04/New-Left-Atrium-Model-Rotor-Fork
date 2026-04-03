@@ -64,11 +64,14 @@ std::string getTimeStamp()
  The file is written to:
  ../NodesMuscles/bin/<NodesMusclesFileName>_<timestamp>.bin
 
- Binary layout (version 2):
+ Binary layout (version 1):
  - version
  - NumberOfNodes
- - per node: type(int), position(float4), muscle[MUSCLES_PER_NODE](int)
  - NumberOfMuscles
+ - PulsePointNode
+ - UpNode
+ - FrontNode
+ - per node: type(int), position(float4), muscle[MUSCLES_PER_NODE](int)
  - per muscle: type(int), nodeA(int), nodeB(int), naturalLength(float)
 */
 void saveBinary()
@@ -116,8 +119,14 @@ void saveBinary()
 	int version = 1; // Increment this if we change the binary layout in a way that is not backwards compatible.
 	fwrite(&version, sizeof(int), 1, binaryFile);
 
-	// Save nodes.
+	// Save counts and required orientation nodes.
 	fwrite(&NumberOfNodes, sizeof(int), 1, binaryFile);
+	fwrite(&NumberOfMuscles, sizeof(int), 1, binaryFile);
+	fwrite(&PulsePointNode, sizeof(int), 1, binaryFile);
+	fwrite(&UpNode, sizeof(int), 1, binaryFile);
+	fwrite(&FrontNode, sizeof(int), 1, binaryFile);
+
+	// Save nodes.
 	for(int i = 0; i < NumberOfNodes; i++)
 	{
 		fwrite(&Node[i].type, sizeof(int), 1, binaryFile);
@@ -125,8 +134,7 @@ void saveBinary()
 		fwrite(Node[i].muscle, sizeof(int), MUSCLES_PER_NODE, binaryFile);
 	}
 
-	// Save muscles.
-	fwrite(&NumberOfMuscles, sizeof(int), 1, binaryFile);
+	// Save muscles information
 	for(int i = 0; i < NumberOfMuscles; i++)
 	{
 		float dx = Node[Muscle[i].nodeA].position.x - Node[Muscle[i].nodeB].position.x;
@@ -142,7 +150,7 @@ void saveBinary()
 
 	fclose(binaryFile);
 	printf("\n Binary file saved: %s\n", fileName);
-	snprintf(BinarySaveStatusMessage, sizeof(BinarySaveStatusMessage), "Binary saved successfully.");
+	snprintf(BinarySaveStatusMessage, sizeof(BinarySaveStatusMessage), "Binary saved: %s", fileName);
 }
 
 #endif // UTILITIES_H

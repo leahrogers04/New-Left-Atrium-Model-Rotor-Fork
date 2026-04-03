@@ -92,7 +92,6 @@ void setMouseMode(simulationSwitchesStructure* sim, int mode)
 	// drawPicture();
 }
 
-
 // Returns the default color for invalid types
 float4 getColorFromType(int type)
 {
@@ -398,12 +397,34 @@ void saveSettings()
 */
 void KeyPressed(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-		
-	
+	// Tab always toggles GUI mode <-> mouse mode, even when GUI currently has focus.
+	if(action == GLFW_PRESS && key == GLFW_KEY_TAB)
+	{
+		if (Simulation.isInMouseFunctionMode)
+		{
+			Simulation.isInMouseFunctionMode = false;
+			Simulation.guiCollapsed = false;
+			setMouseMode(&Simulation, MOUSE_MODE_OFF);
+			glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
+		else
+		{
+			Simulation.isInMouseFunctionMode = true;
+			Simulation.guiCollapsed = true;
+			if(Simulation.mouseMode == MOUSE_MODE_OFF)
+			{
+				Simulation.mouseMode = MOUSE_MODE_STANDARD;
+			}
+			setMouseMode(&Simulation, Simulation.mouseMode);
+			glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+		drawPicture();
+		return;
+	}
 
-	//See if GUI wants this event (Prevents keys from being registered when doing things like typing in a text box)
+	// See if GUI wants this event (prevents shortcuts while typing in text fields).
 	ImGuiIO& io = ImGui::GetIO();
-    if (io.WantCaptureKeyboard)
+	if (io.WantCaptureKeyboard)
         return;
 
 
@@ -419,6 +440,7 @@ void KeyPressed(GLFWwindow* window, int key, int scancode, int action, int mods)
 			if (mods & GLFW_MOD_ALT)
 			{
 				setMouseMode(&Simulation, MOUSE_MODE_OFF);
+				Simulation.guiCollapsed = false;
 			}
 			break;
 		case GLFW_KEY_ESCAPE: // Escape key to exit
@@ -430,6 +452,65 @@ void KeyPressed(GLFWwindow* window, int key, int scancode, int action, int mods)
 			{
 				saveBinary();
 			}
+			break;
+
+		case GLFW_KEY_F2: // Toggle front-half rendering
+			Simulation.DrawFrontHalfFlag = (Simulation.DrawFrontHalfFlag == 0) ? 1 : 0;
+			drawPicture();
+			break;
+
+		case GLFW_KEY_F3: // Cycle node rendering: off -> half -> full -> off
+			if(Simulation.DrawNodesFlag == 0)
+			{
+				Simulation.DrawNodesFlag = 1;
+			}
+			else if(Simulation.DrawNodesFlag == 1)
+			{
+				Simulation.DrawNodesFlag = 2;
+			}
+			else
+			{
+				Simulation.DrawNodesFlag = 0;
+			}
+			drawPicture();
+			break;
+
+		case GLFW_KEY_F4: // Quick select: Standard node section
+			Simulation.guiCollapsed = true;
+			setMouseMode(&Simulation, MOUSE_MODE_STANDARD);
+			drawPicture();
+			break;
+
+		case GLFW_KEY_F5: // Quick select: Bachmann's Bundle section
+			Simulation.guiCollapsed = true;
+			setMouseMode(&Simulation, MOUSE_MODE_BACHMANNS_BUNDLE);
+			drawPicture();
+			break;
+
+		case GLFW_KEY_F6: // Quick select: Appendage section
+			Simulation.guiCollapsed = true;
+			setMouseMode(&Simulation, MOUSE_MODE_APPENDAGE);
+			drawPicture();
+			break;
+
+		case GLFW_KEY_F7: // Quick select: Scar tissue section
+			Simulation.guiCollapsed = true;
+			setMouseMode(&Simulation, MOUSE_MODE_SCAR_TISSUE);
+			drawPicture();
+			break;
+
+		case GLFW_KEY_KP_SUBTRACT: // Decrease selector size
+		case GLFW_KEY_MINUS:
+			HitMultiplier -= 0.01f;
+			if(HitMultiplier < 0.01f) HitMultiplier = 0.01f;
+			drawPicture();
+			break;
+
+		case GLFW_KEY_KP_ADD: // Increase selector size
+		case GLFW_KEY_EQUAL:
+			HitMultiplier += 0.025f;
+			if(HitMultiplier > 0.5f) HitMultiplier = 0.5f;
+			drawPicture();
 			break;
 
 		/*
@@ -1016,7 +1097,6 @@ void mousePassiveMotionCallback(GLFWwindow* window, double x, double y)
 */
 void myMouse(GLFWwindow* window, int button, int action, int mods)
 {	
-
 	// Add this if we want the GUI to only accept GUI handling until you ckick off of it
     // Get ImGui IO to check if it's capturing input
     ImGuiIO& io = ImGui::GetIO();
@@ -1198,16 +1278,37 @@ void myMouse(GLFWwindow* window, int button, int action, int mods)
 
 void scrollWheel(GLFWwindow* window, double xoffset, double yoffset)
 {
-    if(yoffset > 0) // Scroll up
-    {
-        MouseZ -= ScrollSpeed;
-    }
-    else if(yoffset < 0) // Scroll down
-    {
-        MouseZ += ScrollSpeed;
-    }
-    // printf("MouseZ = %f\n", MouseZ);
-    drawPicture();
+	bool ctrlHeld = (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
+					 glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS);
+
+	// Ctrl + scroll adjusts selector size to match model-side workflow.
+	if(ctrlHeld)
+	{
+		if(yoffset > 0)
+		{
+			HitMultiplier += 0.025f;
+			if(HitMultiplier > 0.5f) HitMultiplier = 0.5f;
+		}
+		else if(yoffset < 0)
+		{
+			HitMultiplier -= 0.01f;
+			if(HitMultiplier < 0.01f) HitMultiplier = 0.01f;
+		}
+	}
+	else
+	{
+		if(yoffset > 0) // Scroll up
+		{
+			MouseZ -= ScrollSpeed;
+		}
+		else if(yoffset < 0) // Scroll down
+		{
+			MouseZ += ScrollSpeed;
+		}
+	}
+
+	// printf("MouseZ = %f\n", MouseZ);
+	drawPicture();
 }
 
 #endif // CALLBACKFUNCTIONS_H

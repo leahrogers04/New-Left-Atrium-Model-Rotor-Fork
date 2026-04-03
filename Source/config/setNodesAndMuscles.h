@@ -334,6 +334,102 @@ void readMusclesFromFile()
 }
 
 /*
+ Reads node/muscle data from a config-exported binary file.
+ If NodesMusclesFileName contains .bin, it is treated as a filename under ../NodesMuscles/bin/.
+*/
+void readNodesAndMusclesFromBinaryFile()
+{
+	FILE *inFile;
+	char fileName[512];
+	char *dot;
+
+	strcpy(fileName, "../NodesMuscles/bin/");
+	strcat(fileName, NodesMusclesFileName);
+
+	dot = strrchr(fileName, '.');
+	if(dot == NULL || strcmp(dot, ".bin") != 0)
+	{
+		strcat(fileName, ".bin");
+	}
+
+	inFile = fopen(fileName, "rb");
+	if(inFile == NULL)
+	{
+		printf("\n\n Can't open binary file %s.", fileName);
+		printf("\n The simulation has been terminated.\n\n");
+		exit(0);
+	}
+
+	int version = 0;
+	fread(&version, sizeof(int), 1, inFile);
+	if(version != 1)
+	{
+		printf("\n\n Unsupported binary version %d in %s.", version, fileName);
+		printf("\n The simulation has been terminated.\n\n");
+		exit(0);
+	}
+
+	fread(&NumberOfNodes, sizeof(int), 1, inFile);
+	fread(&NumberOfMuscles, sizeof(int), 1, inFile);
+	fread(&PulsePointNode, sizeof(int), 1, inFile);
+	fread(&UpNode, sizeof(int), 1, inFile);
+	fread(&FrontNode, sizeof(int), 1, inFile);
+
+	NumberOfNodesInBachmannsBundle = 0;
+
+	cudaHostAlloc((void**)&Node, NumberOfNodes*sizeof(nodeAttributesStructure), cudaHostAllocDefault);
+	for(int i = 0; i < NumberOfNodes; i++)
+	{
+		Node[i].position.x = 0.0;
+		Node[i].position.y = 0.0;
+		Node[i].position.z = 0.0;
+		Node[i].position.w = 0.0;
+		Node[i].color.x = 0.0;
+		Node[i].color.y = 1.0;
+		Node[i].color.z = 0.0;
+		Node[i].color.w = 0.0;
+		Node[i].mass = 0.005266;
+		Node[i].type = 0;
+		for(int j = 0; j < MUSCLES_PER_NODE; j++)
+		{
+			Node[i].muscle[j] = -1;
+		}
+	}
+
+	for(int i = 0; i < NumberOfNodes; i++)
+	{
+		fread(&Node[i].type, sizeof(int), 1, inFile);
+		fread(&Node[i].position, sizeof(float4), 1, inFile);
+		fread(Node[i].muscle, sizeof(int), MUSCLES_PER_NODE, inFile);
+		Node[i].color = getColorFromType(Node[i].type);
+	}
+
+	cudaHostAlloc(&Muscle, NumberOfMuscles*sizeof(muscleAttributesStructure), cudaHostAllocDefault);
+	for(int i = 0; i < NumberOfMuscles; i++)
+	{
+		Muscle[i].type = 0;
+		Muscle[i].nodeA = -1;
+		Muscle[i].nodeB = -1;
+		Muscle[i].color.x = 1.0;
+		Muscle[i].color.y = 0.0;
+		Muscle[i].color.z = 0.0;
+		Muscle[i].color.w = 0.0;
+	}
+
+	for(int i = 0; i < NumberOfMuscles; i++)
+	{
+		float naturalLength;
+		fread(&Muscle[i].type, sizeof(int), 1, inFile);
+		fread(&Muscle[i].nodeA, sizeof(int), 1, inFile);
+		fread(&Muscle[i].nodeB, sizeof(int), 1, inFile);
+		fread(&naturalLength, sizeof(float), 1, inFile);
+	}
+
+	fclose(inFile);
+	printf("\n Binary file %s has been read in.\n", fileName);
+}
+
+/*
  This function loads each node structure with all the muscles it is connected to.
 */
 void linkNodesToMuscles()
@@ -597,6 +693,9 @@ void setRemainingParameters()
 		Simulation.ViewFlag = 1;
 		Simulation.DrawNodesFlag = 0;
 		Simulation.DrawFrontHalfFlag = 0;
+		Simulation.isInMouseFunctionMode = false;
+		Simulation.mouseMode = MOUSE_MODE_OFF;
+		Simulation.guiCollapsed = false;
 		
 		setView(6); //Set deafult view only if not loading from previous run.
 	}

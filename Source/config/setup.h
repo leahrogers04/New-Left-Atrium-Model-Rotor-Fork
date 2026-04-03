@@ -97,8 +97,25 @@ void setup()
 	cudaStreamCreate(&ComputeStream);
 	cudaStreamCreate(&MemoryStream);
 	readBasicSimulationSetupParameters();	
-	// Getting nodes and muscle from blender generator files or a previous run file.
-	if(NodesMusclesFileOrPreviousRunsFile == 0)
+
+	char *extension = strrchr(NodesMusclesFileName, '.');
+	bool isBinaryInput = (extension != NULL && strcmp(extension, ".bin") == 0);
+
+	// Config input mode is selected by file extension in NodesMusclesFileName.
+	if(isBinaryInput)
+	{
+		readNodesAndMusclesFromBinaryFile();
+		float3 objectCenter;
+		if(!findCenterOfObject(&objectCenter, Node, NumberOfNodes)) exit(0);
+		if(!findAverageRadiusOfObject(&RadiusOfLeftAtrium, Node, NumberOfNodes)) exit(0);
+		if(!setMuscleTypes())
+		{
+			printf("\n The simulation has been terminated.\n\n");
+			exit(0);
+		}
+		setRemainingNodeAndMuscleAttributes();
+	}
+	else
 	{
 		readNodesFromFile();	
 		float3 objectCenter;
@@ -117,12 +134,6 @@ void setup()
 			exit(0);
 		}
 		setRemainingNodeAndMuscleAttributes();
-	}
-	else
-	{
-		printf("\n\n Bad NodesMusclesFileOrPreviousRunsFile type %d.", NodesMusclesFileOrPreviousRunsFile);
-		printf("\n The simulation has been terminated.\n\n");
-		exit(0);
 	}
 	
 	// Setting parameters that are not initially read from the node and muscle or previous run file.
