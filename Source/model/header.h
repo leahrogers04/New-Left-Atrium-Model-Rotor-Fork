@@ -55,6 +55,28 @@ using namespace std;
 // This sets how many muscle can be connected to a node.
 #define MUSCLES_PER_NODE 20
 
+// Node/muscle type ids (aligned with config)
+#define NODE_TYPE_STANDARD 0
+#define NODE_TYPE_BACHMANN_BUNDLE 1
+#define NODE_TYPE_APPENDAGE 2
+#define NODE_TYPE_SCAR_TISSUE 3
+// Backward-compatible alias for older references.
+#define NODE_TYPE_BACHMANNS_BUNDLE NODE_TYPE_BACHMANN_BUNDLE
+
+// Type colors (aligned with config)
+#define COLOR_STANDARD make_float4(1.0f, 0.0f, 0.0f, 0.0f)
+#define COLOR_BACHMANNS_BUNDLE make_float4(0.2f, 0.2f, 1.0f, 0.0f)
+#define COLOR_APPENDAGE make_float4(0.0f, 0.7f, 0.0f, 0.0f)
+#define COLOR_SCAR_TISSUE make_float4(0.6f, 0.6f, 0.6f, 0.0f)
+
+static inline float4 getTypeColor(int type)
+{
+    if(type == NODE_TYPE_BACHMANN_BUNDLE) return COLOR_BACHMANNS_BUNDLE;
+    if(type == NODE_TYPE_APPENDAGE) return COLOR_APPENDAGE;
+    if(type == NODE_TYPE_SCAR_TISSUE) return COLOR_SCAR_TISSUE;
+    return COLOR_STANDARD;
+}
+
 // Structures
 struct nodeAttributesStructure
 {
@@ -109,6 +131,7 @@ struct simulationSwitchesStructure
     int ViewFlag; 
     int DrawNodesFlag; 
     int DrawFrontHalfFlag;
+    bool ShowMuscleTypesFlag;
     bool nodesFound;
     int frontNodeIndex;
     int topNodeIndex;
@@ -125,6 +148,8 @@ extern nodeAttributesStructure *NodeGPU;
 
 extern muscleAttributesStructure *Muscle;
 extern muscleAttributesStructure *MuscleGPU;
+extern float4 *BinaryNodeColors;
+extern float4 *BinaryMuscleColors;
 
 extern int *BachmannsBundle;
 

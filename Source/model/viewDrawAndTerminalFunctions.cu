@@ -33,6 +33,31 @@
 #include "cudaFunctions.h"
 #include "setNodesAndMuscles.h"
 
+void showMuscleTypes()
+{
+	if(BinaryNodeColors != NULL)
+	{
+		for(int i = 0; i < NumberOfNodes; i++)
+		{
+			// Do not overwrite special marker colors (ablation, adjust/find markers, etc.).
+			if(!Node[i].isAblated && !Node[i].isDrawNode)
+			{
+				Node[i].color = BinaryNodeColors[i];
+			}
+		}
+	}
+
+	if(BinaryMuscleColors != NULL)
+	{
+		for(int i = 0; i < NumberOfMuscles; i++)
+		{
+			Muscle[i].color = BinaryMuscleColors[i];
+		}
+	}
+
+	copyNodesMusclesToGPU();
+}
+
 
 
 // Helper function to show a tooltip in ImGui
@@ -797,6 +822,14 @@ void createGUI()
             }
         }
 		ShowTooltip("(F3)");
+
+		if(ImGui::Button("Show sections"))
+		{
+			Simulation.isPaused = true;
+			showMuscleTypes();
+			drawPicture();
+		}
+		ShowTooltip("Shows the designated sections of the left atrium in different colors.");
         
         // Change views
         // bool frustumView = Simulation.ViewFlag == 1;

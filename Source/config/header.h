@@ -109,6 +109,7 @@ typedef struct
 	int ViewFlag; 
 	int DrawNodesFlag; 
 	int DrawFrontHalfFlag;
+	bool ShowMuscleTypesFlag;
 	bool isInMouseFunctionMode; // This is true if the user is in any of the mouse function modes, like ablate mode, ectopic beat mode, adjust muscle area mode, or adjust muscle line mode.
 	bool guiCollapsed; // for hotkey to collapse GUI
 } simulationSwitchesStructure;

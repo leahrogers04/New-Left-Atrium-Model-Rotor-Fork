@@ -71,8 +71,8 @@ std::string getTimeStamp()
  - PulsePointNode
  - UpNode
  - FrontNode
- - per node: type(int), position(float4), muscle[MUSCLES_PER_NODE](int)
- - per muscle: type(int), nodeA(int), nodeB(int), naturalLength(float)
+ - per node: type(int), position(float4), muscle[MUSCLES_PER_NODE](int), color(float4)
+ - per muscle: type(int), nodeA(int), nodeB(int), naturalLength(float), color(float4)
 */
 void saveBinary()
 {
@@ -115,8 +115,8 @@ void saveBinary()
 		return;
 	}
 
-	// Header for basic validation by future readers.
-	int version = 1; // Increment this if we change the binary layout in a way that is not backwards compatible.
+	// Keep format pinned to version 1 until this feature is rolled out.
+	int version = 1;
 	fwrite(&version, sizeof(int), 1, binaryFile);
 
 	// Save counts and required orientation nodes.
@@ -132,6 +132,7 @@ void saveBinary()
 		fwrite(&Node[i].type, sizeof(int), 1, binaryFile);
 		fwrite(&Node[i].position, sizeof(float4), 1, binaryFile);
 		fwrite(Node[i].muscle, sizeof(int), MUSCLES_PER_NODE, binaryFile);
+		fwrite(&Node[i].color, sizeof(float4), 1, binaryFile);
 	}
 
 	// Save muscles information
@@ -146,6 +147,7 @@ void saveBinary()
 		fwrite(&Muscle[i].nodeA, sizeof(int), 1, binaryFile);
 		fwrite(&Muscle[i].nodeB, sizeof(int), 1, binaryFile);
 		fwrite(&naturalLength, sizeof(float), 1, binaryFile);
+		fwrite(&Muscle[i].color, sizeof(float4), 1, binaryFile);
 	}
 
 	fclose(binaryFile);

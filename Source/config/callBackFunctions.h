@@ -92,6 +92,7 @@ void setMouseMode(simulationSwitchesStructure* sim, int mode)
 	// drawPicture();
 }
 
+
 // Returns the default color for invalid types
 float4 getColorFromType(int type)
 {

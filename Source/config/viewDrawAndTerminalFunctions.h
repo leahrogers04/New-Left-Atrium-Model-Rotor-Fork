@@ -699,7 +699,7 @@ void drawPicture()
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    		glEnable(GL_DEPTH_TEST);
+    	glEnable(GL_DEPTH_TEST);
 		glColor4f(1.0, 1.0, 1.0, 1.0);
 		glPushMatrix();
 		glTranslatef(MouseX, MouseY, MouseZ);
@@ -736,7 +736,7 @@ void createGUI()
 	// Get actual viewport size -- this is the size of the window, not the size of the the openGL viewport
 	const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-	// Compact status panel: always visible so the user knows whether Tab is in GUI mode or mouse mode.
+	//status panel: always visible so the user knows whether simulation is in GUI mode or mouse mode.
 	ImGui::SetNextWindowPos(ImVec2(viewport->WorkPos.x + 10, viewport->WorkPos.y + 10), ImGuiCond_Always, ImVec2(0.0f, 0.0f));
 	ImGuiWindowFlags status_flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoSavedSettings;
 	ImGui::Begin("Interaction Mode", NULL, status_flags);
@@ -827,7 +827,7 @@ void createGUI()
 			ImGui::Text("(F3)");
 			ImGui::EndTooltip();
 		}
-        
+
         // Change view
 	
 
@@ -1108,10 +1108,6 @@ void createGUI()
 		ImGui::Text("Rotate Z-axis: z/Z; Shift + Left/Right");
 		ImGui::Text("Zoom In/Out: e/E; Shift + Up/Down");
 		ImGui::Text("Toggle GUI/Mouse mode: Tab");
-		ImGui::Text("Front/Back draw: F2");
-		ImGui::Text("Show Nodes cycle: F3");
-		ImGui::Text("Section quick-select: F4/F5/F6/F7");
-		ImGui::Text("Selector size: - / = or Ctrl + Scroll");
 
 		ImGui::Text("Collapse/Expand GUI: Ctrl + h");
 		

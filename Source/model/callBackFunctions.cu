@@ -1063,6 +1063,16 @@ void KeyPressed(GLFWwindow* window, int key, int scancode, int action, int mods)
 			Simulation.ContractionisOn = !Simulation.ContractionisOn;
 			break;
 
+		// T key: Ctrl + T to reload type colors
+		case GLFW_KEY_T:
+			if (mods & GLFW_MOD_CONTROL)
+			{
+				Simulation.isPaused = true;
+				showMuscleTypes();
+				drawPicture();
+			}
+			break;
+
 		default: // For any other key, do nothing
 			break;
 

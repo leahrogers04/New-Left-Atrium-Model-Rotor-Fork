@@ -401,7 +401,7 @@ void readNodesAndMusclesFromBinaryFile()
 		fread(&Node[i].type, sizeof(int), 1, inFile);
 		fread(&Node[i].position, sizeof(float4), 1, inFile);
 		fread(Node[i].muscle, sizeof(int), MUSCLES_PER_NODE, inFile);
-		Node[i].color = getColorFromType(Node[i].type);
+		fread(&Node[i].color, sizeof(float4), 1, inFile);
 	}
 
 	cudaHostAlloc(&Muscle, NumberOfMuscles*sizeof(muscleAttributesStructure), cudaHostAllocDefault);
@@ -423,6 +423,7 @@ void readNodesAndMusclesFromBinaryFile()
 		fread(&Muscle[i].nodeA, sizeof(int), 1, inFile);
 		fread(&Muscle[i].nodeB, sizeof(int), 1, inFile);
 		fread(&naturalLength, sizeof(float), 1, inFile);
+		fread(&Muscle[i].color, sizeof(float4), 1, inFile);
 	}
 
 	fclose(inFile);

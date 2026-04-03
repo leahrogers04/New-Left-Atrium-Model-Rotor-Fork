@@ -411,6 +411,192 @@ void readAndConnectMusclesFromFile()
 }
 
 /*
+ This function reads node and muscle data from a config-exported binary file.
+ It appends the binary values into the existing model structs by filling fields
+ that already exist in this model's node and muscle structures.
+*/
+void readNodesAndMusclesFromBinaryFile()
+{
+	FILE *inFile;
+	char fileName[512];
+	char *dot;
+	struct stat fileStat;
+
+	strcpy(fileName, "./NodesMuscles/bin/");
+	strcat(fileName, NodesMusclesFileName);
+
+	dot = strrchr(NodesMusclesFileName, '.');
+	if(dot == NULL || strcmp(dot, ".bin") != 0)
+	{
+		printf("\n\n Invalid binary input file name %s.", NodesMusclesFileName);
+		printf("\n InputFileName in BasicSimulationSetup must end with .bin");
+		printf("\n The simulation has been terminated.\n\n");
+		exit(0);
+	}
+
+	if(stat(fileName, &fileStat) != 0)
+	{
+		printf("\n\n Binary file %s does not exist.", fileName);
+		printf("\n The simulation has been terminated.\n\n");
+		exit(0);
+	}
+
+	inFile = fopen(fileName, "rb");
+	if(inFile == NULL)
+	{
+		printf("\n\n Can't open binary file %s.", fileName);
+		printf("\n The simulation has been terminated.\n\n");
+		exit(0);
+	}
+
+	int version = 0;
+	fread(&version, sizeof(int), 1, inFile);
+	if(version != 1)
+	{
+		printf("\n\n Unsupported binary version %d in %s.", version, fileName);
+		printf("\n The simulation has been terminated.\n\n");
+		exit(0);
+	}
+
+	fread(&NumberOfNodes, sizeof(int), 1, inFile);
+	fread(&NumberOfMuscles, sizeof(int), 1, inFile);
+	fread(&PulsePointNode, sizeof(int), 1, inFile);
+	fread(&UpNode, sizeof(int), 1, inFile);
+	fread(&FrontNode, sizeof(int), 1, inFile);
+
+	printf("\n NumberOfNodes = %d", NumberOfNodes);
+	printf("\n NumberOfMuscles = %d", NumberOfMuscles);
+	printf("\n PulsePointNode = %d", PulsePointNode);
+	printf("\n UpNode = %d", UpNode);
+	printf("\n FrontNode = %d", FrontNode);
+
+	if(BinaryNodeColors != NULL)
+	{
+		free(BinaryNodeColors);
+		BinaryNodeColors = NULL;
+	}
+	BinaryNodeColors = (float4*)malloc(NumberOfNodes*sizeof(float4));
+	if(BinaryNodeColors == NULL)
+	{
+		printf("\n\n Could not allocate node binary color storage.");
+		printf("\n The simulation has been terminated.\n\n");
+		exit(0);
+	}
+
+	if(BinaryMuscleColors != NULL)
+	{
+		free(BinaryMuscleColors);
+		BinaryMuscleColors = NULL;
+	}
+	BinaryMuscleColors = (float4*)malloc(NumberOfMuscles*sizeof(float4));
+	if(BinaryMuscleColors == NULL)
+	{
+		printf("\n\n Could not allocate muscle binary color storage.");
+		printf("\n The simulation has been terminated.\n\n");
+		exit(0);
+	}
+
+	NumberOfNodesInBachmannsBundle = 0;
+
+	// Allocate and initialize node structs with model defaults.
+	cudaHostAlloc((void**)&Node, NumberOfNodes*sizeof(nodeAttributesStructure), cudaHostAllocDefault);
+	cudaErrorCheck(__FILE__, __LINE__);
+	cudaMalloc((void**)&NodeGPU, NumberOfNodes*sizeof(nodeAttributesStructure));
+	cudaErrorCheck(__FILE__, __LINE__);
+
+	for(int i = 0; i < NumberOfNodes; i++)
+	{
+		Node[i].position.x = 0.0;
+		Node[i].position.y = 0.0;
+		Node[i].position.z = 0.0;
+		Node[i].position.w = 0.0;
+
+		Node[i].velocity.x = 0.0;
+		Node[i].velocity.y = 0.0;
+		Node[i].velocity.z = 0.0;
+		Node[i].velocity.w = 0.0;
+
+		Node[i].force.x = 0.0;
+		Node[i].force.y = 0.0;
+		Node[i].force.z = 0.0;
+		Node[i].force.w = 0.0;
+
+		Node[i].mass = 0.0;
+		Node[i].area = 0.0;
+		Node[i].isBeatNode = false;
+		Node[i].beatPeriod = -1.0;
+		Node[i].beatTimer = -1.0;
+		Node[i].isFiring = false;
+		Node[i].isAblated = false;
+		Node[i].isDrawNode = false;
+
+		Node[i].color.x = 0.0;
+		Node[i].color.y = 1.0;
+		Node[i].color.z = 0.0;
+		Node[i].color.w = 0.0;
+
+		for(int j = 0; j < MUSCLES_PER_NODE; j++)
+		{
+			Node[i].muscle[j] = -1;
+		}
+	}
+
+	for(int i = 0; i < NumberOfNodes; i++)
+	{
+		int nodeType;
+		fread(&nodeType, sizeof(int), 1, inFile);
+		(void)nodeType;
+		fread(&Node[i].position, sizeof(float4), 1, inFile);
+		fread(Node[i].muscle, sizeof(int), MUSCLES_PER_NODE, inFile);
+		fread(&BinaryNodeColors[i], sizeof(float4), 1, inFile);
+	}
+
+	// Allocate and initialize muscle structs with model defaults.
+	cudaHostAlloc((void**)&Muscle, NumberOfMuscles*sizeof(muscleAttributesStructure), cudaHostAllocDefault);
+	cudaErrorCheck(__FILE__, __LINE__);
+	cudaMalloc((void**)&MuscleGPU, NumberOfMuscles*sizeof(muscleAttributesStructure));
+	cudaErrorCheck(__FILE__, __LINE__);
+
+	for(int i = 0; i < NumberOfMuscles; i++)
+	{
+		Muscle[i].nodeA = -1;
+		Muscle[i].nodeB = -1;
+		Muscle[i].apNode = -1;
+		Muscle[i].isOn = false;
+		Muscle[i].isEnabled = true;
+		Muscle[i].timer = -1.0;
+		Muscle[i].mass = -1.0;
+		Muscle[i].naturalLength = -1.0;
+		Muscle[i].relaxedStrength = -1.0;
+		Muscle[i].compressionStopFraction = -1.0;
+		Muscle[i].conductionVelocity = -1.0;
+		Muscle[i].conductionDuration = -1.0;
+		Muscle[i].refractoryPeriod = -1.0;
+		Muscle[i].absoluteRefractoryPeriodFraction = -1.0;
+		Muscle[i].contractionStrength = -1.0;
+
+		Muscle[i].color.x = 1.0;
+		Muscle[i].color.y = 0.0;
+		Muscle[i].color.z = 0.0;
+		Muscle[i].color.w = 0.0;
+	}
+
+	for(int i = 0; i < NumberOfMuscles; i++)
+	{
+		int muscleType;
+		fread(&muscleType, sizeof(int), 1, inFile);
+		(void)muscleType;
+		fread(&Muscle[i].nodeA, sizeof(int), 1, inFile);
+		fread(&Muscle[i].nodeB, sizeof(int), 1, inFile);
+		fread(&Muscle[i].naturalLength, sizeof(float), 1, inFile);
+		fread(&BinaryMuscleColors[i], sizeof(float4), 1, inFile);
+	}
+
+	fclose(inFile);
+	printf("\n Binary file %s has been read in.\n", fileName);
+}
+
+/*
  This function loads each node structure with all the muscles it is connected to.
 */
 void linkNodesToMuscles()
@@ -764,7 +950,7 @@ void getNodesandMusclesFromPreviousRun()
         cudaMalloc((void**)&MuscleGPU, NumberOfMuscles*sizeof(muscleAttributesStructure));
         cudaErrorCheck(__FILE__, __LINE__);
         fread(Muscle, sizeof(muscleAttributesStructure), NumberOfMuscles, inFile);
-  	
+
         fread(&NumberOfNodesInBachmannsBundle, sizeof(int), 1, inFile);
         // Allocating memory for the Bachmann's Bundle nodes.
         BachmannsBundle = (int*)malloc(NumberOfNodesInBachmannsBundle*sizeof(int));
@@ -834,6 +1020,7 @@ void setRemainingParameters()
               Simulation.ViewFlag = 1;
               Simulation.DrawNodesFlag = 0;
               Simulation.DrawFrontHalfFlag = 0;
+			  Simulation.ShowMuscleTypesFlag = false;
               Simulation.nodesFound = false;
               Simulation.frontNodeIndex = -1;
               Simulation.topNodeIndex = -1;

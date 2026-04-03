@@ -363,6 +363,9 @@ void setup()
 	// Getting nodes and muscle from files or a previous run file.
 	if(NodesMusclesFileOrPreviousRunsFile == 0)
 	{
+		readNodesAndMusclesFromBinaryFile();
+
+		/*
 		readNodesFromFile();
 		centerNodes();
 		checkNodes();
@@ -370,6 +373,8 @@ void setup()
 		readBachmannBundleFromFile();
 		readAndConnectMusclesFromFile();
 		linkNodesToMuscles();
+		*/
+
 		findRadiusAndMassOfLeftAtrium();
 		setRemainingNodeAndMuscleAttributes();
 		for(int i = 0; i < NumberOfMuscles; i++)

@@ -25,5 +25,6 @@ void APView();
 void setView(int);
 void drawPicture();
 void createGUI();
+void showMuscleTypes();
 
 #endif // VIEWDRAWANDTERMINALFUNCTIONS_H

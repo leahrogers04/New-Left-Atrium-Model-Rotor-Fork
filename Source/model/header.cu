@@ -149,6 +149,8 @@ nodeAttributesStructure *NodeGPU;
 // *** The Muscles (CPU values) should be stored if a runfile is saved.
 muscleAttributesStructure *Muscle;
 muscleAttributesStructure *MuscleGPU;
+float4 *BinaryNodeColors = NULL;
+float4 *BinaryMuscleColors = NULL;
 
 // This will hold all the nodes that extend from the beat node to create Bachmann's Bundle.
 // It is initially read in form files in the NodesMuscles folder.
