@@ -179,7 +179,7 @@ int main(int argc, char** argv)
 
 	*/
 
-	createSphereVBO(NodeRadiusAdjustment * RadiusOfLeftAtrium, 20, 20); //the first arg was the radius used in the draw nodes flag
+	createSphereVBO(NodeRadiusAdjustment * RadiusOfLeftAtrium, 10, 10); //the first arg was the radius used in the draw nodes flag
 
 	// Get current size
     int width, height;

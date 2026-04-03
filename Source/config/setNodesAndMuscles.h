@@ -595,8 +595,8 @@ void setRemainingParameters()
 
               
 		Simulation.ViewFlag = 1;
-		Simulation.DrawNodesFlag = 2;
-		Simulation.DrawFrontHalfFlag = 1;
+		Simulation.DrawNodesFlag = 0;
+		Simulation.DrawFrontHalfFlag = 0;
 		
 		setView(6); //Set deafult view only if not loading from previous run.
 	}

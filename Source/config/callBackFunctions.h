@@ -1024,18 +1024,13 @@ void myMouse(GLFWwindow* window, int button, int action, int mods)
     // If ImGui is handling this mouse event, return
     if (io.WantCaptureMouse) return;
 	
-	float d, dx, dy, dz;
-	float radius;
-	int muscleId;
-	
 	if(action == GLFW_PRESS)
 	{
-		radius = HitMultiplier*RadiusOfLeftAtrium;
-		
 		if(button == GLFW_MOUSE_BUTTON_LEFT)
 		{
 			if(Simulation.mouseMode == MOUSE_MODE_OFF) return; // If mouse mode is off, do nothing on left click	
-			assignNodes(Node, NumberOfNodes, (float3) {MouseX, MouseY, MouseZ}, Simulation.mouseMode);
+			float3 mousePos = {(float)MouseX, (float)MouseY, (float)MouseZ};
+			assignNodes(Node, NumberOfNodes, mousePos, Simulation.mouseMode);
 		}
 		else if(button == GLFW_MOUSE_BUTTON_RIGHT) // Right Mouse button down
 		{

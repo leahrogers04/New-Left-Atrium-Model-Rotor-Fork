@@ -674,20 +674,18 @@ void drawPicture()
 				{
 					if(CenterOfSimulation.z - 0.001 < Node[i].position.z && CenterOfSimulation.z - 0.001 < Node[k].position.z)  // Only drawing the nodes in the front half.
 					{
+						glColor3d(Muscle[muscleNumber].color.x, Muscle[muscleNumber].color.y, Muscle[muscleNumber].color.z);
 						glBegin(GL_LINES);
-							glColor3f(Muscle[muscleNumber].color.x, Muscle[muscleNumber].color.y, Muscle[muscleNumber].color.z);
 							glVertex3f(Node[i].position.x, Node[i].position.y, Node[i].position.z);
-							glColor3f(Muscle[muscleNumber].color.x, Muscle[muscleNumber].color.y, Muscle[muscleNumber].color.z);
 							glVertex3f(Node[k].position.x, Node[k].position.y, Node[k].position.z);
 						glEnd();
 					}
 				}
 				else
 				{
+					glColor3d(Muscle[muscleNumber].color.x, Muscle[muscleNumber].color.y, Muscle[muscleNumber].color.z);
 					glBegin(GL_LINES);
-						glColor3f(Muscle[muscleNumber].color.x, Muscle[muscleNumber].color.y, Muscle[muscleNumber].color.z);
 						glVertex3f(Node[i].position.x, Node[i].position.y, Node[i].position.z);
-						glColor3f(Muscle[muscleNumber].color.x, Muscle[muscleNumber].color.y, Muscle[muscleNumber].color.z);
 						glVertex3f(Node[k].position.x, Node[k].position.y, Node[k].position.z);
 					glEnd();
 				}

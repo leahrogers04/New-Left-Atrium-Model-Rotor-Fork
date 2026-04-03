@@ -35,6 +35,7 @@ nvcc -c imgui/imgui_impl_glfw.cpp imgui/imgui_impl_opengl3.cpp
 
 
 nvcc SVT.cu glad.c\
+     header.cu setNodesAndMuscles.cu callBackFunctions.cu viewDrawAndTerminalFunctions.cu cudaFunctions.cu \
      imgui.o imgui_draw.o imgui_tables.o imgui_widgets.o imgui_impl_glfw.o imgui_impl_opengl3.o \
      -o svt \
      -lglfw -lGL -lGLU -lm -lX11 -lXrandr -lXinerama -lXcursor -lXi
