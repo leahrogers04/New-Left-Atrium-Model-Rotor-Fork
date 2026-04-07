@@ -1063,12 +1063,14 @@ void KeyPressed(GLFWwindow* window, int key, int scancode, int action, int mods)
 			Simulation.ContractionisOn = !Simulation.ContractionisOn;
 			break;
 
-		// T key: Ctrl + T to reload type colors
+		// T key: Ctrl + T to show saved section colors.
 		case GLFW_KEY_T:
 			if (mods & GLFW_MOD_CONTROL)
 			{
 				Simulation.isPaused = true;
+				// Reapply section colors that were saved in the loaded binary file.
 				showMuscleTypes();
+				// Refresh the scene right away so the color change is visible immediately.
 				drawPicture();
 			}
 			break;

@@ -25,6 +25,7 @@ void APView();
 void setView(int);
 void drawPicture();
 void createGUI();
+// Reapply node/muscle section colors that were saved in the loaded binary file.
 void showMuscleTypes();
 
 #endif // VIEWDRAWANDTERMINALFUNCTIONS_H

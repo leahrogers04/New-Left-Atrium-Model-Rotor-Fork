@@ -35,6 +35,7 @@
 
 void showMuscleTypes()
 {
+	// If the binary file included node section colors, apply them back onto visible tissue nodes.
 	if(BinaryNodeColors != NULL)
 	{
 		for(int i = 0; i < NumberOfNodes; i++)
@@ -42,15 +43,18 @@ void showMuscleTypes()
 			// Do not overwrite special marker colors (ablation, adjust/find markers, etc.).
 			if(!Node[i].isAblated && !Node[i].isDrawNode)
 			{
+				// Restore the node color that was saved in the binary export.
 				Node[i].color = BinaryNodeColors[i];
 			}
 		}
 	}
 
+	// If the binary file included muscle section colors, restore those too.
 	if(BinaryMuscleColors != NULL)
 	{
 		for(int i = 0; i < NumberOfMuscles; i++)
 		{
+			// Restore the muscle color that was saved in the binary export.
 			Muscle[i].color = BinaryMuscleColors[i];
 		}
 	}
@@ -826,7 +830,9 @@ void createGUI()
 		if(ImGui::Button("Show sections"))
 		{
 			Simulation.isPaused = true;
+			// Apply saved section colors from the loaded binary data.
 			showMuscleTypes();
+			// Redraw immediately so the section colors appear as soon as the button is pressed.
 			drawPicture();
 		}
 		ShowTooltip("Shows the designated sections of the left atrium in different colors.");

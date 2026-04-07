@@ -422,18 +422,23 @@ void readNodesAndMusclesFromBinaryFile()
 	char *dot;
 	struct stat fileStat;
 
+	// Build the expected input path under the binary folder.
 	strcpy(fileName, "./NodesMuscles/bin/");
 	strcat(fileName, NodesMusclesFileName);
 
+	// Enforce .bin extension so raw text inputs cannot be loaded directly by the model.
 	dot = strrchr(NodesMusclesFileName, '.');
 	if(dot == NULL || strcmp(dot, ".bin") != 0)
 	{
 		printf("\n\n Invalid binary input file name %s.", NodesMusclesFileName);
 		printf("\n InputFileName in BasicSimulationSetup must end with .bin");
+		printf("\n If you are trying to read in a raw file, make sure you run it through the config program and save it as a .bin file.");
+		printf("\n To run the config program, run the command: ./config in the terminal");
 		printf("\n The simulation has been terminated.\n\n");
 		exit(0);
 	}
 
+	// Check that the file physically exists before trying to open it.
 	if(stat(fileName, &fileStat) != 0)
 	{
 		printf("\n\n Binary file %s does not exist.", fileName);
@@ -441,6 +446,7 @@ void readNodesAndMusclesFromBinaryFile()
 		exit(0);
 	}
 
+	// Open in binary read mode.
 	inFile = fopen(fileName, "rb");
 	if(inFile == NULL)
 	{
@@ -449,6 +455,7 @@ void readNodesAndMusclesFromBinaryFile()
 		exit(0);
 	}
 
+	// Read and validate format version before reading any payload.
 	int version = 0;
 	fread(&version, sizeof(int), 1, inFile);
 	if(version != 1)
@@ -458,6 +465,7 @@ void readNodesAndMusclesFromBinaryFile()
 		exit(0);
 	}
 
+	// Read global counts and orientation references used by rendering/simulation.
 	fread(&NumberOfNodes, sizeof(int), 1, inFile);
 	fread(&NumberOfMuscles, sizeof(int), 1, inFile);
 	fread(&PulsePointNode, sizeof(int), 1, inFile);
@@ -470,6 +478,7 @@ void readNodesAndMusclesFromBinaryFile()
 	printf("\n UpNode = %d", UpNode);
 	printf("\n FrontNode = %d", FrontNode);
 
+	// Reset cached binary node colors so we can store the colors from this file.
 	if(BinaryNodeColors != NULL)
 	{
 		free(BinaryNodeColors);
@@ -483,6 +492,7 @@ void readNodesAndMusclesFromBinaryFile()
 		exit(0);
 	}
 
+	// Reset cached binary muscle colors so we can store the colors from this file.
 	if(BinaryMuscleColors != NULL)
 	{
 		free(BinaryMuscleColors);
@@ -496,6 +506,7 @@ void readNodesAndMusclesFromBinaryFile()
 		exit(0);
 	}
 
+	// Start fresh; this counter is rebuilt while nodes are read.
 	NumberOfNodesInBachmannsBundle = 0;
 
 	// Allocate and initialize node structs with model defaults.
@@ -541,6 +552,7 @@ void readNodesAndMusclesFromBinaryFile()
 		}
 	}
 
+	// Read node payload in the exact order used by config saveBinary().
 	for(int i = 0; i < NumberOfNodes; i++)
 	{
 		int nodeType;
@@ -1007,26 +1019,26 @@ void setRemainingParameters()
 	      AngleOfSimulation.z = 0.0;
 	      AngleOfSimulation.w = 0.0;
 
-              Simulation.isPaused = true;
-              Simulation.isInAblateMode = false;
-              Simulation.isInEctopicBeatMode = false;
-              Simulation.isInEctopicEventMode = false;
-              Simulation.isInAdjustMuscleAreaMode = false;
-              Simulation.isInAdjustMuscleLineMode = false;
-              Simulation.isInFindNodeMode = false;
-              Simulation.isInMouseFunctionMode = false;
-              Simulation.isRecording = false;
-              //Simulation.ContractionisOn = false; //This is set in the BasicSimulationSetup file.
-              Simulation.ViewFlag = 1;
-              Simulation.DrawNodesFlag = 0;
-              Simulation.DrawFrontHalfFlag = 0;
-			  Simulation.ShowMuscleTypesFlag = false;
-              Simulation.nodesFound = false;
-              Simulation.frontNodeIndex = -1;
-              Simulation.topNodeIndex = -1;
-              // Simulation.guiCollapsed = false; //This is set in viewDrawAndTerminalFuctions.h/createGUI().
-              
-              setView(6); //Set deafult view only if not loading from previous run.
+		Simulation.isPaused = true;
+		Simulation.isInAblateMode = false;
+		Simulation.isInEctopicBeatMode = false;
+		Simulation.isInEctopicEventMode = false;
+		Simulation.isInAdjustMuscleAreaMode = false;
+		Simulation.isInAdjustMuscleLineMode = false;
+		Simulation.isInFindNodeMode = false;
+		Simulation.isInMouseFunctionMode = false;
+		Simulation.isRecording = false;
+		//Simulation.ContractionisOn = false; //This is set in the BasicSimulationSetup file.
+		Simulation.ViewFlag = 1;
+		Simulation.DrawNodesFlag = 0;
+		Simulation.DrawFrontHalfFlag = 0;
+		Simulation.ShowMuscleTypesFlag = false;
+		Simulation.nodesFound = false;
+		Simulation.frontNodeIndex = -1;
+		Simulation.topNodeIndex = -1;
+		// Simulation.guiCollapsed = false; //This is set in viewDrawAndTerminalFuctions.h/createGUI().
+		
+		setView(6); //Set deafult view only if not loading from previous run.
 	}
 	
 	HitMultiplier = 0.03;
