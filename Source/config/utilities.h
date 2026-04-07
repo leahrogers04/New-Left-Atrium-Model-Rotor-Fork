@@ -133,13 +133,10 @@ void saveBinary()
 	// Save nodes.
 	for(int i = 0; i < NumberOfNodes; i++)
 	{
-		// Write node type for section classification.
+		// write type, position, muscle connectivity, and color for each node 
 		fwrite(&Node[i].type, sizeof(int), 1, binaryFile);
-		// Write node position used to reconstruct geometry.
 		fwrite(&Node[i].position, sizeof(float4), 1, binaryFile);
-		// Write node-to-muscle connectivity map.
 		fwrite(Node[i].muscle, sizeof(int), MUSCLES_PER_NODE, binaryFile);
-		// Write node color so section coloring can be restored later.
 		fwrite(&Node[i].color, sizeof(float4), 1, binaryFile);
 	}
 
@@ -152,14 +149,11 @@ void saveBinary()
 		float dz = Node[Muscle[i].nodeA].position.z - Node[Muscle[i].nodeB].position.z;
 		float naturalLength = sqrtf(dx*dx + dy*dy + dz*dz);
 
-		// Write muscle section type.
+		// Write muscle type, connectivity, rest length, and color for each muscle
 		fwrite(&Muscle[i].type, sizeof(int), 1, binaryFile);
-		// Write both endpoint node ids.
 		fwrite(&Muscle[i].nodeA, sizeof(int), 1, binaryFile);
 		fwrite(&Muscle[i].nodeB, sizeof(int), 1, binaryFile);
-		// Write natural length used by mechanics.
 		fwrite(&naturalLength, sizeof(float), 1, binaryFile);
-		// Write muscle color so section coloring can be restored later.
 		fwrite(&Muscle[i].color, sizeof(float4), 1, binaryFile);
 	}
 

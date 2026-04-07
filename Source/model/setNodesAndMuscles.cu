@@ -426,7 +426,7 @@ void readNodesAndMusclesFromBinaryFile()
 	strcpy(fileName, "./NodesMuscles/bin/");
 	strcat(fileName, NodesMusclesFileName);
 
-	// Enforce .bin extension so raw text inputs cannot be loaded directly by the model.
+	// Enforce .bin extension for early detection of invalid file names and to avoid confusion with raw files
 	dot = strrchr(NodesMusclesFileName, '.');
 	if(dot == NULL || strcmp(dot, ".bin") != 0)
 	{
@@ -465,7 +465,7 @@ void readNodesAndMusclesFromBinaryFile()
 		exit(0);
 	}
 
-	// Read global counts and orientation references used by rendering/simulation.
+	// Read global counts and orientation references
 	fread(&NumberOfNodes, sizeof(int), 1, inFile);
 	fread(&NumberOfMuscles, sizeof(int), 1, inFile);
 	fread(&PulsePointNode, sizeof(int), 1, inFile);
@@ -552,7 +552,7 @@ void readNodesAndMusclesFromBinaryFile()
 		}
 	}
 
-	// Read node payload in the exact order used by config saveBinary().
+	// Read nodes in exact order used by config saveBinary().
 	for(int i = 0; i < NumberOfNodes; i++)
 	{
 		int nodeType;
@@ -593,6 +593,7 @@ void readNodesAndMusclesFromBinaryFile()
 		Muscle[i].color.w = 0.0;
 	}
 
+	// Read muscles in exact order used by config saveBinary().
 	for(int i = 0; i < NumberOfMuscles; i++)
 	{
 		int muscleType;
@@ -604,6 +605,7 @@ void readNodesAndMusclesFromBinaryFile()
 		fread(&BinaryMuscleColors[i], sizeof(float4), 1, inFile);
 	}
 
+	//close file and print success message.
 	fclose(inFile);
 	printf("\n Binary file %s has been read in.\n", fileName);
 }
@@ -1001,6 +1003,13 @@ void getNodesandMusclesFromPreviousRun()
 */
 void setRemainingParameters()
 {	
+	bool isBinaryInput = false;
+	char *extension = strrchr(NodesMusclesFileName, '.');
+	if(extension != NULL && strcmp(extension, ".bin") == 0)
+	{
+		isBinaryInput = true;
+	}
+
 	// If this is a new run these values are set hre. If it is a previous run these values will aready be read in.
 	if (NodesMusclesFileOrPreviousRunsFile == 0) 
 	{
@@ -1038,7 +1047,10 @@ void setRemainingParameters()
 		Simulation.topNodeIndex = -1;
 		// Simulation.guiCollapsed = false; //This is set in viewDrawAndTerminalFuctions.h/createGUI().
 		
-		setView(6); //Set deafult view only if not loading from previous run.
+		if(!isBinaryInput)
+		{
+			setView(6); //Set deafult view only if not loading from a binary snapshot.
+		}
 	}
 	
 	HitMultiplier = 0.03;

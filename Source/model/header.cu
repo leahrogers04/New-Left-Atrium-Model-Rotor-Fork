@@ -27,9 +27,9 @@
 #include <GLFW/glfw3.h>
 
 // ImGui headers - use quotes for local includes, not angle brackets
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include "../third_party/imgui/imgui.h"
+#include "../third_party/imgui/imgui_impl_glfw.h"
+#include "../third_party/imgui/imgui_impl_opengl3.h"
 
 using namespace std;
 
