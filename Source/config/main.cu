@@ -18,8 +18,8 @@
 */
 
 // Local include files
-#include "core.h"
-#include "data.h"
+#include "globals.h"
+#include "file_io.h"
 #include "callbacks.h"
 #include "view.h"
 #include "gui.h"

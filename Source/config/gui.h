@@ -1,7 +1,7 @@
 #ifndef GUI_H
 #define GUI_H
 
-#include "core.h"
+#include "globals.h"
 #include "view.h"
 #include "callbacks.h"
 #include "utils.h"
@@ -358,18 +358,6 @@ void createGUI()
 		if (BinarySaveStatusMessage[0] != '\0')
 		{
 			ImGui::TextWrapped("%s", BinarySaveStatusMessage);
-		}
-
-		//Save settings button
-        if (ImGui::Button("Save Settings"))
-		{
-            saveSettings();
-        }
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::BeginTooltip();
-			ImGui::Text("(F6)\nSave current muscle properties and simulation\nsettings to a file for later use");
-			ImGui::EndTooltip();
 		}
     }
 
