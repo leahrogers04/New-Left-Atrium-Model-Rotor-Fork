@@ -711,22 +711,4 @@ void drawPicture()
 	// Saves the picture if a movie is being recorded.
 }
 
-/* 
-	 This function creates the GUI using ImGui.
-	 This is where the actual window is built
-
-	 All ImGui fields need to be in an if statement to check if the value has changed.
-	 ImGui::CollapsingHeader to create a collapsible section
-	 ImGui::Text to display text
-	 ImGui::Input<Type> to create input fields for user input
-	 ImGui::Slider<Type> to create sliders for user input
-	 ImGui::Checkbox to create checkboxes for toggling options (must be bools)
-	 ImGui::Combo to create dropdown menus for selecting options (must be int pointers)
-	 ImGui::Button to create buttons for actions
-	 ImGui::TextColored to display colored text (use vec4 to apply the color)
-	 ImGui::SameLine to place elements on the same line
-	 ImGui::isItemHovered to check if an item is hovered over (used for tooltips)
-
-	 For buttons and checkboxes, its best to use ternary operators when posssible
-*/
 #endif // VIEW_H

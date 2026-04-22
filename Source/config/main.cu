@@ -234,23 +234,6 @@ int main(int argc, char** argv)
 		ImGui_ImplGlfw_NewFrame();
 
 		ImGui::NewFrame();
-		/*	
-		// Update physics --multiple steps per frame for performance
-		if (!Simulation.isPaused) 
-		{
-			// Execute nBody DrawRate times before we draw
-			for (int i = 0; i < DrawRate; i++) 
-			{
-				//if(RunTime < 25.0) nBody(Dt/10.0); // Ease into the simulation.
-				//else nBody(Dt);
-				// Check if we hit the 10ms mark and need to pause
-				if (Simulation.isPaused) 
-				{
-					break;  // Exit the loop if simulation gets paused
-				}
-			}
-		}
-		*/
 		
 		// Always draw every frame - this is critical for GLFW performance
 		drawPicture();

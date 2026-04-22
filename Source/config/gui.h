@@ -6,6 +6,16 @@
 #include "callbacks.h"
 #include "utils.h"
 
+static inline void ShowTooltip(const char* text)
+{
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::BeginTooltip();
+		ImGui::TextUnformatted(text);
+		ImGui::EndTooltip();
+	}
+}
+
 void createGUI()
 {
 
@@ -77,12 +87,7 @@ void createGUI()
             Simulation.DrawFrontHalfFlag = frontHalf ? 1 : 0;
             drawPicture();
         }
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::BeginTooltip();
-			ImGui::Text("(F2)");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(F2)");
         
         // Node display options
         const char* nodeOptions[] = { "Off", "Half", "Full" }; //array of options for the dropdown menu
@@ -97,12 +102,7 @@ void createGUI()
                 drawPicture();
             }
         }
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::BeginTooltip();
-			ImGui::Text("(F3)");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(F3)");
 
         // Change view
 	
@@ -119,12 +119,7 @@ void createGUI()
 			//copyNodesToGPU(); 
 			drawPicture(); 
 		}
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::BeginTooltip();
-			ImGui::Text("(7)\nPosterior-Anterior View\nView from back to front");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(7)\nPosterior-Anterior View\nView from back to front");
 		
 		ImGui::SameLine();
 		if (ImGui::Button("AP"))  
@@ -133,12 +128,7 @@ void createGUI()
 			//copyNodesToGPU(); 
 			drawPicture(); 
 		}
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::BeginTooltip();
-			ImGui::Text("(8)\nAnterior-Posterior View\nView from front to back");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(8)\nAnterior-Posterior View\nView from front to back");
 		
 		ImGui::SameLine();
 		if (ImGui::Button("Ref"))
@@ -147,12 +137,7 @@ void createGUI()
 			//copyNodesToGPU(); 
 			drawPicture(); 
 		}
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::BeginTooltip();
-			ImGui::Text("(9)\nReference View\nStandard orientation with pulmonary veins visible");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(9)\nReference View\nStandard orientation with pulmonary veins visible");
 		
 		if (ImGui::Button("LAO"))
 		{ 
@@ -160,12 +145,7 @@ void createGUI()
 			//copyNodesToGPU(); 
 			drawPicture(); 
 		}
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::BeginTooltip();
-			ImGui::Text("(4)\nLeft Anterior Oblique\nAngled view from front-left");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(4)\nLeft Anterior Oblique\nAngled view from front-left");
 		
 		ImGui::SameLine();
 		if (ImGui::Button("RAO"))
@@ -174,12 +154,7 @@ void createGUI()
 			//copyNodesToGPU(); 
 			drawPicture(); 
 		}
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::BeginTooltip();
-			ImGui::Text("(5)\nRight Anterior Oblique\nAngled view from front-right");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(5)\nRight Anterior Oblique\nAngled view from front-right");
 		
 		ImGui::SameLine();
 		if (ImGui::Button("LL"))
@@ -188,12 +163,7 @@ void createGUI()
 			//copyNodesToGPU(); 
 			drawPicture(); 
 		}
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::BeginTooltip();
-			ImGui::Text("(6)\nLeft Lateral\nDirect view from left side");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(6)\nLeft Lateral\nDirect view from left side");
 
 		if (ImGui::Button("RL"))
 		{ 
@@ -201,12 +171,7 @@ void createGUI()
 			//copyNodesToGPU(); 
 			drawPicture(); 
 		}
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::BeginTooltip();
-			ImGui::Text("(1)\nRight Lateral\nDirect view from right side");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(1)\nRight Lateral\nDirect view from right side");
 		
 		ImGui::SameLine();
 		if (ImGui::Button("SUP"))
@@ -215,12 +180,7 @@ void createGUI()
 			//copyNodesToGPU(); 
 			drawPicture(); 
 		}
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::BeginTooltip();
-			ImGui::Text("(2)\nSuperior View\nView from above (top-down)");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(2)\nSuperior View\nView from above (top-down)");
 		
 		ImGui::SameLine();
 		if (ImGui::Button("INF"))
@@ -229,115 +189,42 @@ void createGUI()
 			//copyNodesToGPU(); 
 			drawPicture(); 
 		}
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::BeginTooltip();
-			ImGui::Text("(3)\nInferior View\nView from below (bottom-up)");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(3)\nInferior View\nView from below (bottom-up)");
 	}
 	
 	// Mouse mode selection
 	if (ImGui::CollapsingHeader("Mouse Functions", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		// TODO: Rewrite this for the new mode system
-		/* // Display current mouse mode
-		ImGui::Text("Current Mode: ");
-		if (!Simulation.isInMouseFunctionMode) 
-		{
-			ImGui::SameLine();
-			ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "Mouse Off");
-		}
-		else if (Simulation.isInAblateMode) 
-		{
-			ImGui::SameLine();
-			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Ablate Mode");
-			ImGui::Text("Alt + Q to exit mouse mode");
-			ImGui::Text("(Left Click: Ablate, Right Click: Undo)");
-		}
-		else if (Simulation.isInEctopicBeatMode) 
-		{
-			ImGui::SameLine();
-			ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Ectopic Beat");
-			ImGui::Text("Alt + Q to exit mouse mode");
-		} 
-		else if (Simulation.isInEctopicEventMode) 
-		{
-			ImGui::SameLine();
-			ImGui::TextColored(ImVec4(0.0f, 0.5f, 1.0f, 1.0f), "Ectopic Trigger");
-			ImGui::Text("Alt + Q to exit mouse mode");
-		} 
-		else if (Simulation.isInAdjustMuscleAreaMode) 
-		{
-			ImGui::SameLine();
-			ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Adjust Area");
-			ImGui::Text("Alt + Q to exit mouse mode");
-		} 
-		else if (Simulation.isInAdjustMuscleLineMode) 
-		{
-			ImGui::SameLine();
-			ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), "Adjust Line");
-			ImGui::Text("Alt + Q to exit mouse mode");
-		} 
-		else if (Simulation.isInFindNodeMode) 
-		{
-			ImGui::SameLine();
-			ImGui::TextColored(ImVec4(0.5f, 0.0f, 1.0f, 1.0f), "Identify Node");
-			ImGui::Text("Alt + Q to exit mouse mode");
-		}*/
-
 		// Mouse mode buttons
 		// TODO: Implement the mouse mode defines here.
 		if (ImGui::Button("Mouse Off"))
 		{
 			setMouseMode(&Simulation, MOUSE_MODE_OFF); // OR whatever number for simulation off 
 		}
-		if (ImGui::IsItemHovered())
-		{
-		}
+		ShowTooltip("Disable mouse editing and return to GUI mode");
 
 		if (ImGui::Button("Set Standard Node")) 
 		{
 			setMouseMode(&Simulation, MOUSE_MODE_STANDARD); 
 		}
 		// TODO: Make helper functions for tooltips
-		if (ImGui::IsItemHovered())
-		{  
-			ImGui::BeginTooltip();
-			ImGui::Text("(F4)\nSet selected nodes to Standard");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(F4)\nSet selected nodes to Standard");
 
 		if (ImGui::Button("Set Bachmann's Bundle")) 
 		{
 			setMouseMode(&Simulation, MOUSE_MODE_BACHMANNS_BUNDLE);
 		}
-		if(ImGui::IsItemHovered()) 
-		{ 
-			ImGui::BeginTooltip();
-			ImGui::Text("(F5)\nSet selected nodes to Bachmann's Bundle");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(F5)\nSet selected nodes to Bachmann's Bundle");
 		if (ImGui::Button("Set Appendage")) 
 		{
 			setMouseMode(&Simulation, MOUSE_MODE_APPENDAGE);
 		}
-		if(ImGui::IsItemHovered()) 
-		{ 
-			ImGui::BeginTooltip();
-			ImGui::Text("(F6)\nSet selected nodes to Appendage");
-			ImGui::EndTooltip();
-		}
-		if (ImGui::Button("Scar Tissue")) 
+		ShowTooltip("(F6)\nSet selected nodes to Appendage");
+		if (ImGui::Button("Set Scar/Extra Tissue")) 
 		{
 			setMouseMode(&Simulation, MOUSE_MODE_SCAR_TISSUE); 
 		}
-		if(ImGui::IsItemHovered()) 
-		{ 
-			ImGui::BeginTooltip();
-			ImGui::Text("(F7)\nSet selected nodes to Scar Tissue");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(F7)\nSet selected nodes to Scar Tissue");
 
 	}
     
@@ -348,12 +235,7 @@ void createGUI()
 		{
 			saveBinary();
 		}
-		if (ImGui::IsItemHovered())
-		{
-			ImGui::BeginTooltip();
-			ImGui::Text("(Ctrl + Shift + S)\nSave node/muscle attributes to\n<NodesMusclesFileName>_<timestamp>.bin");
-			ImGui::EndTooltip();
-		}
+		ShowTooltip("(Ctrl + Shift + S)\nSave node/muscle attributes to\n<NodesMusclesFileName>_<timestamp>.bin");
 
 		if (BinarySaveStatusMessage[0] != '\0')
 		{
