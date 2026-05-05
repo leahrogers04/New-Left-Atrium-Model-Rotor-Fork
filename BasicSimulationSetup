@@ -39,7 +39,7 @@ TestSphere
 
 Place the Nodes and Muscle file you would like to run here.
 
---InputFileName =  IdealLeftAtrium2.3Kdemo.bin
+--InputFileName =  Sphere136k
 .bin
 
 
