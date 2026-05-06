@@ -1,29 +1,3 @@
-<<<<<<< HEAD:Source/setNodesAndMuscles.h
-#ifndef SETNODESANDMUSCLES_H
-#define SETNODESANDMUSCLES_H
-
-#include "header.h"
-#include "cudaFunctions.h"  // for cudaErrorCheck
-#include "viewDrawAndTerminalFunctions.h"  // for setView
-
-// prototypes for functions that read/setup node and muscle data
-
-void readNodesFromFile();
-void centerNodes();
-void checkNodes();
-void readPulseUpAndFrontNodesFromFile();
-void readBachmannBundleFromFile();
-void readAndConnectMusclesFromFile();
-void linkNodesToMuscles();
-double croppedRandomNumber(double, double, double);
-void findRadiusAndMassOfLeftAtrium();
-void setRemainingNodeAndMuscleAttributes();
-void getNodesandMusclesFromPreviousRun();
-void setRemainingParameters();
-void checkMuscle(int);
-
-#endif // SETNODESANDMUSCLES_H
-=======
 /*
  This file contains all the functions that read in the nodes and muscles, links them together, 
  sets up the node and muscle attributes, and assigns them their values in our units. 
@@ -1165,5 +1139,4 @@ void checkMuscle(int muscleId)
 		Muscle[muscleId].color.w = 1.0;
 	}
 }
->>>>>>> modelConfig:Source/model/setNodesAndMuscles.cu
 

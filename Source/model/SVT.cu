@@ -363,12 +363,9 @@ void setup()
 	// Getting nodes and muscle from files or a previous run file.
 	if(NodesMusclesFileOrPreviousRunsFile == 0)
 	{
-<<<<<<< HEAD:Source/SVT.cu
-=======
 		readNodesAndMusclesFromBinaryFile();
 
 		/*
->>>>>>> modelConfig:Source/model/SVT.cu
 		readNodesFromFile();
 		centerNodes();
 		checkNodes();

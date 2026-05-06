@@ -24,8 +24,6 @@
 ### Spiral Wave Reentry --------------- AFib Like Action
 <img src="ReadMeImages/SpiralWaves.png" width=30% height=30% class='center'></img>
 <img src="ReadMeImages/AF.png" width=30% height=30% class='center'></img>
-### Reentry on Topologically Realistic Model 
-<img src="ReadMeImages/RealModel.png" width=60% height=60% class='center'></img>
 
 <a id="project-aims"></a>  
 ## Project Aims
@@ -54,11 +52,10 @@ The LA was chosen for modeling due to its role in complex arrhythmias [17-20]. O
 <a id="videos"></a>
 ## Videos
 
-Video Micro-Reenter: 					https://youtu.be/llIGgZSiTnE  
-Video Macro-Reenter: 					https://youtu.be/3m_7lrOe2cw  
+Video Micro-Reenter: 		https://youtu.be/llIGgZSiTnE  
+Video Macro-Reenter: 		https://youtu.be/3m_7lrOe2cw  
 Video Spiral Wave-Reentry: 				https://youtu.be/c-ID603Vm9Q  
-Video AFib-Like: 						https://youtu.be/GG6Q7uG8OhQ   
-Video Realistic Topology:				https://www.youtube.com/watch?v=y_ju9k7Y6So
+Video AFib-Like: 			https://youtu.be/GG6Q7uG8OhQ   
 
 <a id="installation"></a>
 ## Installation
