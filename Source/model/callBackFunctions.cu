@@ -781,21 +781,6 @@ void hidePulseBackTopNodes()
 	copyNodesToGPU();
 }
 
-// Hide sections by resetting muscle colors to default
-void hideSections()
-{
-	// Reset all muscles to their default gray color.
-	for (int i = 0; i < NumberOfMuscles; i++)
-	{
-		Muscle[i].color.x = 0.7f;
-		Muscle[i].color.y = 0.7f;
-		Muscle[i].color.z = 0.7f;
-	}
-
-	copyNodesMusclesToGPU();
-	drawPicture();
-}
-
 /*
  This function directs the action that needs to be taken if a user hits a key on the key board.
  The terminal screen lists out all the keys and what they will do.
