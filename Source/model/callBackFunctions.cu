@@ -644,83 +644,156 @@ void findNodes()
 {
 	copyNodesFromGPU();
 
-	//Reset previous nodes if they exist
-	if (Simulation.frontNodeIndex >= 0 && Simulation.topNodeIndex >= 0) //if the front and top node indices are valid
-	
+	// Reset previously highlighted back/top nodes.
+	if (Simulation.frontNodeIndex >= 0 && Simulation.frontNodeIndex < NumberOfNodes)
 	{
-		// Reset front node based on ablation status
-		if (Node[Simulation.frontNodeIndex].isAblated) 
+		if (Node[Simulation.frontNodeIndex].isAblated)
 		{
-			Node[Simulation.frontNodeIndex].isDrawNode = true; // Keep it visible, set to white
+			Node[Simulation.frontNodeIndex].isDrawNode = true;
 			Node[Simulation.frontNodeIndex].color.x = 1.0f;
 			Node[Simulation.frontNodeIndex].color.y = 1.0f;
 			Node[Simulation.frontNodeIndex].color.z = 1.0f;
-		} 
-		else 
+		}
+		else
 		{
-			Node[Simulation.frontNodeIndex].isDrawNode = false; //back to default color
+			Node[Simulation.frontNodeIndex].isDrawNode = false;
 			Node[Simulation.frontNodeIndex].color.x = 0.0f;
 			Node[Simulation.frontNodeIndex].color.y = 1.0f;
 			Node[Simulation.frontNodeIndex].color.z = 0.0f;
 		}
-
-		// Reset top node based on ablation status
-		if (Node[Simulation.topNodeIndex].isAblated) 
+	}
+	if (Simulation.topNodeIndex >= 0 && Simulation.topNodeIndex < NumberOfNodes)
+	{
+		if (Node[Simulation.topNodeIndex].isAblated)
 		{
-			Node[Simulation.topNodeIndex].isDrawNode = true; // Keep it visible, set color to white
+			Node[Simulation.topNodeIndex].isDrawNode = true;
 			Node[Simulation.topNodeIndex].color.x = 1.0f;
 			Node[Simulation.topNodeIndex].color.y = 1.0f;
 			Node[Simulation.topNodeIndex].color.z = 1.0f;
-		} 
-		else 
+		}
+		else
 		{
-			Node[Simulation.topNodeIndex].isDrawNode = false; //back to default color
+			Node[Simulation.topNodeIndex].isDrawNode = false;
 			Node[Simulation.topNodeIndex].color.x = 0.0f;
 			Node[Simulation.topNodeIndex].color.y = 1.0f;
 			Node[Simulation.topNodeIndex].color.z = 0.0f;
 		}
 	}
 
-	//give bad values to the indices so we know they are not valid unless they are made valid again
-	float maxZ = -10000.0;
-	float maxY = -10000.0;
-	int indexZ = -1;
-	int indexY = -1;
-	
-	// Loop through all nodes, checking for the max Z and Y values
-	for(int i = 0; i < NumberOfNodes; i++)
+	// Highlight the configured pulse/back/top nodes selected in config.
+	if (PulsePointNode >= 0 && PulsePointNode < NumberOfNodes)
 	{
-		if(maxZ < Node[i].position.z) 
+		Node[PulsePointNode].isDrawNode = true;
+		Node[PulsePointNode].color.x = 1.0f;
+		Node[PulsePointNode].color.y = 0.85f;
+		Node[PulsePointNode].color.z = 0.2f;
+	}
+	if (FrontNode >= 0 && FrontNode < NumberOfNodes)
+	{
+		Node[FrontNode].isDrawNode = true;
+		Node[FrontNode].color.x = 1.0f;
+		Node[FrontNode].color.y = 0.45f;
+		Node[FrontNode].color.z = 0.2f;
+	}
+	if (UpNode >= 0 && UpNode < NumberOfNodes)
+	{
+		Node[UpNode].isDrawNode = true;
+		Node[UpNode].color.x = 0.2f;
+		Node[UpNode].color.y = 0.95f;
+		Node[UpNode].color.z = 1.0f;
+	}
+
+	// Store indices for persistent display in the Utilities panel.
+	Simulation.frontNodeIndex = FrontNode;
+	Simulation.topNodeIndex = UpNode;
+	Simulation.nodesFound = ((PulsePointNode >= 0 && PulsePointNode < NumberOfNodes) ||
+		(FrontNode >= 0 && FrontNode < NumberOfNodes) ||
+		(UpNode >= 0 && UpNode < NumberOfNodes));
+
+	drawPicture();
+	copyNodesToGPU();
+}
+
+// Hide pulse/back/top node markers by resetting them to normal colors
+void hidePulseBackTopNodes()
+{
+	copyNodesFromGPU();
+
+	// Reset pulse, back, and top nodes to their normal colors.
+	if (PulsePointNode >= 0 && PulsePointNode < NumberOfNodes)
+	{
+		if (Node[PulsePointNode].isAblated)
 		{
-			maxZ = Node[i].position.z;
-			indexZ = i;
+			Node[PulsePointNode].isDrawNode = true;
+			Node[PulsePointNode].color.x = 1.0f;
+			Node[PulsePointNode].color.y = 1.0f;
+			Node[PulsePointNode].color.z = 1.0f;
 		}
-		
-		if(maxY < Node[i].position.y) 
+		else
 		{
-			maxY = Node[i].position.y;
-			indexY = i;
+			Node[PulsePointNode].isDrawNode = false;
+			Node[PulsePointNode].color.x = 0.0f;
+			Node[PulsePointNode].color.y = 1.0f;
+			Node[PulsePointNode].color.z = 0.0f;
 		}
 	}
-	
-	//set the colors of the nodes to blue and purple, respectively
-	Node[indexZ].isDrawNode = true; // Set the front node to be drawn as blue
-	Node[indexZ].color.x = 0.0;
-	Node[indexZ].color.y = 0.0;
-	Node[indexZ].color.z = 1.0;
-	
-	Node[indexY].isDrawNode = true; // Set the top node to be drawn as purple
-	Node[indexY].color.x = 1.0;
-	Node[indexY].color.y = 0.0;
-	Node[indexY].color.z = 1.0;
-	
-	// Store indices for persistent display
-	Simulation.frontNodeIndex = indexZ;
-	Simulation.topNodeIndex = indexY;
-	Simulation.nodesFound = true;
-	
-	drawPicture(); // Redraw the picture to show the new colors
-	copyNodesToGPU(); // Copy the updated nodes back to GPU (since the color changed)
+	if (FrontNode >= 0 && FrontNode < NumberOfNodes)
+	{
+		if (Node[FrontNode].isAblated)
+		{
+			Node[FrontNode].isDrawNode = true;
+			Node[FrontNode].color.x = 1.0f;
+			Node[FrontNode].color.y = 1.0f;
+			Node[FrontNode].color.z = 1.0f;
+		}
+		else
+		{
+			Node[FrontNode].isDrawNode = false;
+			Node[FrontNode].color.x = 0.0f;
+			Node[FrontNode].color.y = 1.0f;
+			Node[FrontNode].color.z = 0.0f;
+		}
+	}
+	if (UpNode >= 0 && UpNode < NumberOfNodes)
+	{
+		if (Node[UpNode].isAblated)
+		{
+			Node[UpNode].isDrawNode = true;
+			Node[UpNode].color.x = 1.0f;
+			Node[UpNode].color.y = 1.0f;
+			Node[UpNode].color.z = 1.0f;
+		}
+		else
+		{
+			Node[UpNode].isDrawNode = false;
+			Node[UpNode].color.x = 0.0f;
+			Node[UpNode].color.y = 1.0f;
+			Node[UpNode].color.z = 0.0f;
+		}
+	}
+
+	// Clear the flag and indices.
+	Simulation.nodesFound = false;
+	Simulation.frontNodeIndex = -1;
+	Simulation.topNodeIndex = -1;
+
+	drawPicture();
+	copyNodesToGPU();
+}
+
+// Hide sections by resetting muscle colors to default
+void hideSections()
+{
+	// Reset all muscles to their default gray color.
+	for (int i = 0; i < NumberOfMuscles; i++)
+	{
+		Muscle[i].color.x = 0.7f;
+		Muscle[i].color.y = 0.7f;
+		Muscle[i].color.z = 0.7f;
+	}
+
+	copyNodesMusclesToGPU();
+	drawPicture();
 }
 
 /*

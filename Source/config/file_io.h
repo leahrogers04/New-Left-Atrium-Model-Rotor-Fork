@@ -472,13 +472,15 @@ int getTypePriority(int nodeType)
 	const int PRIORITY_BB = 2;
 	const int PRIORITY_LAA = 3;
 	const int PRIORITY_XT = 4;
+	const int PRIORITY_PV = 5;
+	const int PRIORITY_MV = 6;
 
 	if(nodeType == NODE_TYPE_STANDARD) return PRIORITY_LA;
 	if(nodeType == NODE_TYPE_BACHMANN_BUNDLE) return PRIORITY_BB;
 	if(nodeType == NODE_TYPE_APPENDAGE) return PRIORITY_LAA;
 	if(nodeType == NODE_TYPE_SCAR_TISSUE) return PRIORITY_XT;
-	
-
+	if(nodeType == NODE_TYPE_PULMONARY_VEINS) return PRIORITY_PV;
+	if(nodeType == NODE_TYPE_MITRAL_VALVE) return PRIORITY_MV;
 
 	return -1;
 }
@@ -491,7 +493,10 @@ float4 getMuscleColorFromType(int type)
 	if(type == NODE_TYPE_STANDARD) return COLOR_STANDARD;
 	if(type == NODE_TYPE_BACHMANN_BUNDLE) return COLOR_BACHMANNS_BUNDLE;
 	if(type == NODE_TYPE_APPENDAGE) return COLOR_APPENDAGE;
-	return COLOR_SCAR_TISSUE;
+	if(type == NODE_TYPE_SCAR_TISSUE) return COLOR_SCAR_TISSUE;
+	if(type == NODE_TYPE_PULMONARY_VEINS) return COLOR_PULMONARY_VEINS;
+	if(type == NODE_TYPE_MITRAL_VALVE) return COLOR_MITRAL_VALVE;
+	return COLOR_STANDARD;
 }
 
 /*
@@ -848,7 +853,21 @@ void saveBinary()
 	// Close file handle before reporting success.
 	fclose(binaryFile);
 	printf("\n Binary file saved: %s\n", fileName);
-	snprintf(BinarySaveStatusMessage, sizeof(BinarySaveStatusMessage), "Binary saved: %s", fileName);
+	const char* statusPrefix = "Binary saved: ";
+	size_t prefixLen = strlen(statusPrefix);
+	size_t available = (sizeof(BinarySaveStatusMessage) > prefixLen + 1)
+		? (sizeof(BinarySaveStatusMessage) - prefixLen - 1)
+		: 0;
+	memcpy(BinarySaveStatusMessage, statusPrefix, prefixLen);
+	if(available > 0)
+	{
+		strncpy(BinarySaveStatusMessage + prefixLen, fileName, available);
+		BinarySaveStatusMessage[prefixLen + available] = '\0';
+	}
+	else
+	{
+		BinarySaveStatusMessage[sizeof(BinarySaveStatusMessage) - 1] = '\0';
+	}
 }
 
 #endif // SETNODESNMUSCLES_H

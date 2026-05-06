@@ -32,6 +32,11 @@
 /*
  OpenGL callback when the window is reshaped.
 */
+
+// Forward declaration for GPU copy helper (defined in CUDA functions module)
+void copyNodesToGPU();
+void copyNodesMusclesToGPU();
+
 void reshape(GLFWwindow* window, int width, int height)
 {
 	// Update the window size variables for capture and mouse math
@@ -102,7 +107,9 @@ float4 getColorFromType(int type)
 		case NODE_TYPE_BACHMANN_BUNDLE:		return COLOR_BACHMANNS_BUNDLE;
 		case NODE_TYPE_APPENDAGE:			return COLOR_APPENDAGE;
 		case NODE_TYPE_SCAR_TISSUE:			return COLOR_SCAR_TISSUE;
-		default:							return COLOR_STANDARD; 
+		case NODE_TYPE_PULMONARY_VEINS:		return COLOR_PULMONARY_VEINS;
+		case NODE_TYPE_MITRAL_VALVE:			return COLOR_MITRAL_VALVE;
+		default:							return COLOR_STANDARD;
 	}
 }
 
@@ -224,6 +231,39 @@ void setEctopicBeat(int nodeId)
 	}*/
 	drawPicture();
 
+}
+
+// Clears all node types to the default (STANDARD) and updates muscles/colors.
+void clearAllTypes()
+{
+	for(int i = 0; i < NumberOfNodes; i++)
+	{
+		Node[i].type = NODE_TYPE_STANDARD;
+		Node[i].color = getColorFromType(NODE_TYPE_STANDARD);
+	}
+	// Recompute muscle types/colors based on node endpoints and refresh view.
+	setMuscleTypes();
+	drawPicture();
+}
+
+// Resets nodes/muscles to original file state if a binary was loaded, otherwise behaves like clearAllTypes().
+void resetToOriginalOrClear()
+{
+	// If the configured file has a .bin extension, re-read the binary file to restore original state.
+	char *extension = strrchr(NodesMusclesFileName, '.');
+	if(extension != NULL && strcmp(extension, ".bin") == 0)
+	{
+		// Re-read binary and reinitialize structures from disk.
+		readNodesAndMusclesFromBinaryFile();
+		linkNodesToMuscles();
+		setRemainingNodeAndMuscleAttributes();
+		setMuscleTypes();
+		drawPicture();
+		return;
+	}
+
+	// Not a binary input - behave like clear all.
+	clearAllTypes();
 }
 
 
@@ -956,7 +996,7 @@ void keyHeld(GLFWwindow* window)
 			AngleOfSimulation.z += dAngle;
 		}
 	}
-	
+
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) 
 	{
 		if(shiftHeld)  // Uppercase E - Zoom out
@@ -1059,6 +1099,154 @@ void keyHeld(GLFWwindow* window)
 	drawPicture(); // Redraw the picture after all the changes
 
 }
+
+// Returns the closest node to the mouse cursor within the selection radius, or -1 if none are close enough.
+int findClosestNodeToMouse(float3 mousePos)
+{
+	int closestNode = -1;
+	float closestDistSquared = FLOATMAX;
+	float hitRadiusSquared = HitMultiplier * HitMultiplier * RadiusOfLeftAtrium * RadiusOfLeftAtrium;
+
+	for(int i = 0; i < NumberOfNodes; i++)
+	{
+		float dx = Node[i].position.x - mousePos.x;
+		float dy = Node[i].position.y - mousePos.y;
+		float dz = Node[i].position.z - mousePos.z;
+		float distSquared = dx*dx + dy*dy + dz*dz;
+		if(distSquared < hitRadiusSquared && distSquared < closestDistSquared)
+		{
+			closestDistSquared = distSquared;
+			closestNode = i;
+		}
+	}
+
+	return closestNode;
+}
+
+static inline void restoreNodeToDefaultDisplay(int nodeId)
+{
+	if(nodeId < 0 || nodeId >= NumberOfNodes) return;
+	Node[nodeId].color = getColorFromType(Node[nodeId].type);
+}
+
+// Sets the pulse node, which drives the beat.
+void setPulseNode(int nodeId)
+{
+	if(nodeId < 0 || nodeId >= NumberOfNodes) return;
+
+	if(PulsePointNode >= 0 && PulsePointNode < NumberOfNodes && PulsePointNode != nodeId)
+	{
+		restoreNodeToDefaultDisplay(PulsePointNode);
+	}
+
+	PulsePointNode = nodeId;
+	Node[nodeId].color.x = 1.0f;
+	Node[nodeId].color.y = 0.85f;
+	Node[nodeId].color.z = 0.2f;
+	drawPicture();
+}
+
+static inline int findTopNodeAboveWallCenterOfMass()
+{
+	double totalMass = 0.0;
+	double centerX = 0.0;
+	double centerY = 0.0;
+	double centerZ = 0.0;
+	for(int i = 0; i < NumberOfNodes; i++)
+	{
+		if(Node[i].type == NODE_TYPE_STANDARD)
+		{
+			totalMass += Node[i].mass;
+			centerX += Node[i].position.x * Node[i].mass;
+			centerY += Node[i].position.y * Node[i].mass;
+			centerZ += Node[i].position.z * Node[i].mass;
+		}
+	}
+
+	if(totalMass <= 0.0)
+	{
+		printf("\n\n Error: unable to compute top-node center of mass because total wall mass is zero or invalid.");
+		return -1;
+	}
+
+	centerX /= totalMass;
+	centerY /= totalMass;
+	centerZ /= totalMass;
+
+	int topNode = -1;
+	double bestXZDist2 = FLOATMAX;
+	double topY = -FLOATMAX;
+	const double xzTol = 1e-6;
+	for(int i = 0; i < NumberOfNodes; i++)
+	{
+		if(Node[i].position.y < centerY)
+		{
+			continue;
+		}
+
+		double dx = Node[i].position.x - centerX;
+		double dz = Node[i].position.z - centerZ;
+		double xzDist2 = dx*dx + dz*dz;
+		if((xzDist2 + xzTol < bestXZDist2) ||
+		   (fabs(xzDist2 - bestXZDist2) <= xzTol && Node[i].position.y > topY))
+		{
+			bestXZDist2 = xzDist2;
+			topY = Node[i].position.y;
+			topNode = i;
+		}
+	}
+
+	if(topNode == -1)
+	{
+		bestXZDist2 = FLOATMAX;
+		topY = -FLOATMAX;
+		for(int i = 0; i < NumberOfNodes; i++)
+		{
+			double dx = Node[i].position.x - centerX;
+			double dz = Node[i].position.z - centerZ;
+			double xzDist2 = dx*dx + dz*dz;
+			if((xzDist2 + xzTol < bestXZDist2) ||
+			   (fabs(xzDist2 - bestXZDist2) <= xzTol && Node[i].position.y > topY))
+			{
+				bestXZDist2 = xzDist2;
+				topY = Node[i].position.y;
+				topNode = i;
+			}
+		}
+	}
+
+	return topNode;
+}
+
+// Sets the back node and computes the top node from the atrial wall center of mass.
+void setBackAndTopNodes(int backNodeId)
+{
+	if(backNodeId < 0 || backNodeId >= NumberOfNodes) return;
+
+	if(FrontNode >= 0 && FrontNode < NumberOfNodes && FrontNode != backNodeId)
+	{
+		restoreNodeToDefaultDisplay(FrontNode);
+	}
+	if(UpNode >= 0 && UpNode < NumberOfNodes)
+	{
+		restoreNodeToDefaultDisplay(UpNode);
+	}
+
+	FrontNode = backNodeId;
+	Node[FrontNode].color.x = 1.0f;
+	Node[FrontNode].color.y = 0.45f;
+	Node[FrontNode].color.z = 0.2f;
+
+	UpNode = findTopNodeAboveWallCenterOfMass();
+	if(UpNode >= 0)
+	{
+		Node[UpNode].color.x = 0.2f;
+		Node[UpNode].color.y = 0.95f;
+		Node[UpNode].color.z = 1.0f;
+	}
+
+	drawPicture();
+}
 /*
  This function is called when the mouse moves without any button pressed.
  x and y are the current mouse coordinates.
@@ -1103,7 +1291,7 @@ void myMouse(GLFWwindow* window, int button, int action, int mods)
     ImGuiIO& io = ImGui::GetIO();
     
     // If ImGui is handling this mouse event, return
-    if (io.WantCaptureMouse) return;
+	if (io.WantCaptureMouse) return;
 	
 	if(action == GLFW_PRESS)
 	{
@@ -1111,7 +1299,26 @@ void myMouse(GLFWwindow* window, int button, int action, int mods)
 		{
 			if(Simulation.mouseMode == MOUSE_MODE_OFF) return; // If mouse mode is off, do nothing on left click	
 			float3 mousePos = {(float)MouseX, (float)MouseY, (float)MouseZ};
-			assignNodes(Node, NumberOfNodes, mousePos, Simulation.mouseMode);
+			if(Simulation.mouseMode == MOUSE_MODE_PULSE_NODE)
+			{
+				int nodeId = findClosestNodeToMouse(mousePos);
+				if(nodeId != -1)
+				{
+					setPulseNode(nodeId);
+				}
+			}
+			else if(Simulation.mouseMode == MOUSE_MODE_BACK_TOP)
+			{
+				int nodeId = findClosestNodeToMouse(mousePos);
+				if(nodeId != -1)
+				{
+					setBackAndTopNodes(nodeId);
+				}
+			}
+			else
+			{
+				assignNodes(Node, NumberOfNodes, mousePos, Simulation.mouseMode);
+			}
 		}
 		else if(button == GLFW_MOUSE_BUTTON_RIGHT) // Right Mouse button down
 		{

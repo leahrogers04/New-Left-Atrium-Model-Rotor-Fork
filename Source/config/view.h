@@ -653,6 +653,26 @@ void drawPicture()
 		}
 		glEnd();
 	}
+
+	// Always draw pulse/top/back markers as point sprites so they stand out regardless of node draw mode.
+	glPointSize(NodePointSize * 1.35f);
+	glBegin(GL_POINTS);
+	if(PulsePointNode >= 0 && PulsePointNode < NumberOfNodes)
+	{
+		glColor3d(1.0, 0.85, 0.2);
+		glVertex3f(Node[PulsePointNode].position.x, Node[PulsePointNode].position.y, Node[PulsePointNode].position.z);
+	}
+	if(UpNode >= 0 && UpNode < NumberOfNodes)
+	{
+		glColor3d(0.2, 0.95, 1.0);
+		glVertex3f(Node[UpNode].position.x, Node[UpNode].position.y, Node[UpNode].position.z);
+	}
+	if(FrontNode >= 0 && FrontNode < NumberOfNodes)
+	{
+		glColor3d(1.0, 0.45, 0.2);
+		glVertex3f(Node[FrontNode].position.x, Node[FrontNode].position.y, Node[FrontNode].position.z);
+	}
+	glEnd();
 	
 	// Drawing muscles
 	glLineWidth(LineWidth);

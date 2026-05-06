@@ -8,7 +8,7 @@ Should be a 0 or a 1.
 
 --NodesMusclesFileOrPreviousRunsFile = 0;
 
-//TODO: Figure out how we want to allow users to copy/paste raw vs bin
+
 Name of the files that holds the nodes and muscles. 
 Line11
 Circle24
@@ -36,12 +36,11 @@ Rand300X300
 Rand100X100X10
 Cross200X200
 TestSphere
+Sphere136k
 
 Place the Nodes and Muscle file you would like to run here.
 
---InputFileName =  Sphere136k
-.bin
-
+--InputFileName =  3DIdealLAtrium2.3K_5-6-2026_10.40.26.bin_5-6-2026_11.29.45.bin
 
 Name of previous run files that were stored in GitHub.
 test

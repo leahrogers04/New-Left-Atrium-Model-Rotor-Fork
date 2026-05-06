@@ -827,16 +827,6 @@ void createGUI()
         }
 		ShowTooltip("(F3)");
 
-		if(ImGui::Button("Show sections"))
-		{
-			Simulation.isPaused = true;
-			// Apply saved section colors from the loaded binary data.
-			showMuscleTypes();
-			// Redraw immediately so the section colors appear as soon as the button is pressed.
-			drawPicture();
-		}
-		ShowTooltip("Shows the designated sections of the left atrium in different colors.");
-        
         // Change views
         // bool frustumView = Simulation.ViewFlag == 1;
         // if (ImGui::Checkbox("Frustum View", &frustumView))
@@ -1357,19 +1347,40 @@ void createGUI()
         }
 		ShowTooltip("(Ctrl + Shift + S)\nSave current muscle properties and simulation\nsettings to a file for later use");
 
-        //Find nodes button
-        if (ImGui::Button("Find Nodes"))
+		if (ImGui::Button("Show sections"))
 		{
-            findNodes();
-        }
-		ShowTooltip("(Alt + F) Identify and highlight the front (blue) and top (purple)\nnodes in the current view orientation\n\nIt is reccomended to draw nodes to see the results clearly");
+			Simulation.isPaused = true;
+			// Apply saved section colors from the loaded binary data.
+			showMuscleTypes();
+			// Redraw immediately so the section colors appear as soon as the button is pressed.
+			drawPicture();
+		}
+		ShowTooltip("Shows the designated sections of the left atrium in different colors.");
 
-		// Display the information outside the button handler so it persists (if it was in the main function it'd only show for 1 frame)
+        //Find nodes button - toggle to show/hide markers
+        static bool markersShowing = false;
+        if (ImGui::Button(markersShowing ? "Hide Pulse/Back/Top Nodes" : "Show Pulse/Back/Top"))
+		{
+            if (markersShowing)
+            {
+                hidePulseBackTopNodes();
+                markersShowing = false;
+            }
+            else
+            {
+                findNodes();
+                markersShowing = true;
+            }
+        }
+		ShowTooltip("Toggle visibility of pulse/back/top node markers");
+
+		// Display selected-node information.
 		if (Simulation.nodesFound) 
 		{
 			ImGui::Separator();
-			ImGui::Text("Front node (blue): %d", Simulation.frontNodeIndex);
-			ImGui::Text("Top node (purple): %d", Simulation.topNodeIndex);
+			ImGui::Text("Pulse node (gold): %d", PulsePointNode);
+			ImGui::Text("Back node (orange): %d", FrontNode);
+			ImGui::Text("Top node (cyan): %d", UpNode);
 		}
 
 		if (ImGui::Button("Save State"))

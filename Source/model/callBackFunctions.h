@@ -32,6 +32,8 @@ void saveSettings();
 void saveState();
 void loadState();
 void findNodes();
+void hidePulseBackTopNodes();
+void hideSections();
 void KeyPressed(GLFWwindow* window, int key, int scancode, int action, int mods);
 void keyHeld(GLFWwindow* window);
 void mousePassiveMotionCallback(GLFWwindow* window, double x, double y);

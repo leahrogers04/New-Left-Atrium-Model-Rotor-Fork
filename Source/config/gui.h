@@ -38,6 +38,10 @@ void createGUI()
 		else if (Simulation.mouseMode == MOUSE_MODE_BACHMANNS_BUNDLE) ImGui::TextUnformatted("Section: Bachmann's Bundle");
 		else if (Simulation.mouseMode == MOUSE_MODE_APPENDAGE) ImGui::TextUnformatted("Section: Appendage");
 		else if (Simulation.mouseMode == MOUSE_MODE_SCAR_TISSUE) ImGui::TextUnformatted("Section: Scar Tissue");
+		else if (Simulation.mouseMode == MOUSE_MODE_PULMONARY_VEINS) ImGui::TextUnformatted("Section: Pulmonary Veins");
+		else if (Simulation.mouseMode == MOUSE_MODE_MITRAL_VALVE) ImGui::TextUnformatted("Section: Mitral Valve");
+		else if (Simulation.mouseMode == MOUSE_MODE_PULSE_NODE) ImGui::TextUnformatted("Section: Pulse Node");
+		else if (Simulation.mouseMode == MOUSE_MODE_BACK_TOP) ImGui::TextUnformatted("Section: Back/Top Nodes");
 		else ImGui::TextUnformatted("Section: None");
 	}
 	ImGui::TextUnformatted("Tab: Toggle GUI/Mouse mode");
@@ -226,11 +230,48 @@ void createGUI()
 		}
 		ShowTooltip("(F7)\nSet selected nodes to Scar Tissue");
 
+		if (ImGui::Button("Set Pulse Node")) 
+		{
+			setMouseMode(&Simulation, MOUSE_MODE_PULSE_NODE); 
+		}
+		ShowTooltip("Click a node to set it as the pulse node");
+
+		if (ImGui::Button("Set Back/Top Nodes")) 
+		{
+			setMouseMode(&Simulation, MOUSE_MODE_BACK_TOP); 
+		}
+		ShowTooltip("Click a back node; the top node is calculated from type 0 wall nodes");
+
+		if (ImGui::Button("Set Pulmonary Veins")) 
+		{
+			setMouseMode(&Simulation, MOUSE_MODE_PULMONARY_VEINS); 
+		}
+		ShowTooltip("(F8)\nSet selected nodes to Pulmonary Veins");
+
+		if (ImGui::Button("Set Mitral Valve")) 
+		{
+			setMouseMode(&Simulation, MOUSE_MODE_MITRAL_VALVE); 
+		}
+		ShowTooltip("(F9)\nSet selected nodes to Mitral Valve");
+
 	}
     
     // Utility functions
 	if (ImGui::CollapsingHeader("Utilities", ImGuiTreeNodeFlags_DefaultOpen))
     {
+		if (ImGui::Button("Reset"))
+		{
+			resetToOriginalOrClear();
+		}
+		ShowTooltip("Reset to original binary state (if .bin), otherwise clear all types");
+
+		ImGui::SameLine();
+		if (ImGui::Button("Clear All"))
+		{
+			clearAllTypes();
+		}
+		ShowTooltip("Clear all node/muscle types to default (Standard)");
+
 		if (ImGui::Button("Save Binary"))
 		{
 			saveBinary();

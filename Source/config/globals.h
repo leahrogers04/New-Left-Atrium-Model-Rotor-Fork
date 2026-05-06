@@ -62,6 +62,8 @@ const int NODE_TYPE_STANDARD = 0;
 const int NODE_TYPE_BACHMANN_BUNDLE = 1;
 const int NODE_TYPE_APPENDAGE = 2;
 const int NODE_TYPE_SCAR_TISSUE = 3; // This is not implemented yet but will be used to make scar tissue in the future.
+const int NODE_TYPE_PULMONARY_VEINS = 4;
+const int NODE_TYPE_MITRAL_VALVE = 5;
 
 // Mouse modes, which will use the same int values as the node types for simplicity, but with -1 for off mode.
 const int MOUSE_MODE_OFF = -1;
@@ -69,12 +71,18 @@ const int MOUSE_MODE_STANDARD = NODE_TYPE_STANDARD;
 const int MOUSE_MODE_BACHMANNS_BUNDLE = NODE_TYPE_BACHMANN_BUNDLE;
 const int MOUSE_MODE_APPENDAGE = NODE_TYPE_APPENDAGE;
 const int MOUSE_MODE_SCAR_TISSUE = NODE_TYPE_SCAR_TISSUE; // This is not implemented yet but will be used to make scar tissue in the future.
+const int MOUSE_MODE_PULMONARY_VEINS = NODE_TYPE_PULMONARY_VEINS;
+const int MOUSE_MODE_MITRAL_VALVE = NODE_TYPE_MITRAL_VALVE;
+const int MOUSE_MODE_PULSE_NODE = 100;
+const int MOUSE_MODE_BACK_TOP = 101;
 
 
 const float4 COLOR_STANDARD = {1.0f, 0.0f, 0.0f, 0.0f}; // Mostly white for standard nodes (to reduce contrast)
 const float4 COLOR_BACHMANNS_BUNDLE= {0.2f, 0.2f, 1.0f, 0.0f}; // Blue for Bachmann's Bundle nodes and muscles by default.
 const float4 COLOR_APPENDAGE = {0.0f, 0.7f, 0.0f, 0.0f}; // Green for left atrial appendage nodes and muscles by default.
 const float4 COLOR_SCAR_TISSUE = {0.6f, 0.6f, 0.6f, 0.0f}; // Gray for scar tissue nodes and muscles by default.
+const float4 COLOR_PULMONARY_VEINS = {1.0f, 0.5f, 0.0f, 0.0f}; // Orange for pulmonary veins nodes and muscles by default.
+const float4 COLOR_MITRAL_VALVE = {1.0f, 0.0f, 1.0f, 0.0f}; // Magenta for mitral valve nodes and muscles by default.
 
 // Simulation mode defines. I am fairly sure these will not be needed but will be useful for the main program.
 const int SIM_MODE_STANDARD = 0;
@@ -364,6 +372,9 @@ void mouseAdjustMusclesLineMode();
 void mouseIdentifyNodeMode();
 bool setMouseMuscleAttributes();
 void setEctopicBeat(int nodeId);
+void setPulseNode(int nodeId);
+void setBackAndTopNodes(int backNodeId);
+int findClosestNodeToMouse(float3 mousePos);
 void clearStdin();
 string getTimeStamp();
 void saveBinary();
