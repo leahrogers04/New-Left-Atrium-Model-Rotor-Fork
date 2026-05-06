@@ -8,6 +8,7 @@ Should be a 0 or a 1.
 
 --NodesMusclesFileOrPreviousRunsFile = 0;
 
+
 Name of the files that holds the nodes and muscles. 
 Line11
 Circle24
@@ -36,10 +37,12 @@ Rand200X200
 Rand300X300
 Rand100X100X10
 Cross200X200
+TestSphere
+Sphere136k
 
 Place the Nodes and Muscle file you would like to run here.
 
---InputFileName = 10X10
+--InputFileName =  3DIdealLAtrium2.3K_5-6-2026_10.40.26.bin_5-6-2026_11.29.45.bin
 
 Name of previous run files that were stored in GitHub.
 test
@@ -58,7 +61,7 @@ Connection line width for the lines that represent muscles connecting the nodes:
 1.0 to 3.0 works well for simulations with many nodes, and 5.0 to 10.0 is suitable for simulations with fewer nodes.
 It should be a float.
 	
---LineWidth = 3.0;
+--LineWidth = 1.0;
 
 Set the size of the node spheres here. It is scaled by the RadiusOfLeftAtrium. A good value is 0.01.
 It should be a float.
