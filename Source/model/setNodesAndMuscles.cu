@@ -433,7 +433,7 @@ void readNodesAndMusclesFromBinaryFile()
 		printf("\n\n Invalid binary input file name %s.", NodesMusclesFileName);
 		printf("\n InputFileName in BasicSimulationSetup must end with .bin");
 		printf("\n If you are trying to read in a raw file, make sure you run it through the config program and save it as a .bin file.");
-		printf("\n To run the config program, run the command: ./config in the terminal");
+		printf("\n To run the config program, run the command: ./runconfig in the terminal");
 		printf("\n The simulation has been terminated.\n\n");
 		exit(0);
 	}
