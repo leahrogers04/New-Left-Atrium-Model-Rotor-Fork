@@ -5,6 +5,31 @@
 
 #include "callBackFunctions.h"
 
+// Map the shared preset selection to the export resolution used by both video and screenshots.
+static void getQualityPresetDimensions(int preset, int& targetWidth, int& targetHeight)
+{
+	switch (preset)
+	{
+		case 0:
+			targetWidth = 1920;
+			targetHeight = 1080;
+			break;
+		case 1:
+			targetWidth = 2560;
+			targetHeight = 1440;
+			break;
+		case 2:
+		case 3:
+			targetWidth = 3840;
+			targetHeight = 2160;
+			break;
+		default:
+			targetWidth = CaptureWidth;
+			targetHeight = CaptureHeight;
+			break;
+	}
+}
+
 
 /*
  OpenGL callback when the window is reshaped.
@@ -273,45 +298,37 @@ string getTimeStamp()
 */
 void movieOn()
 {
-	// Lock the capture resolution at the time capture starts so window resizes
-	// do not affect the video dimensions.
-	//CaptureWidth = XWindowSize;
-	//CaptureHeight = YWindowSize;
-
 	string ts = getTimeStamp();
 	ts.append(".mp4");
 
-	// Setting up the movie buffer.
-	/*const char* cmd = "ffmpeg -loglevel quiet -r 60 -f rawvideo -pix_fmt rgba -s 1000x1000 -i - "
-		      "-threads 0 -preset fast -y -pix_fmt yuv420p -crf 21 -vf vflip output.mp4";*/
-
 	char baseCommand[512]; // Command to run ffmpeg with the correct parameters for capturing a movie
-	//use sprintf to create the command string for ffmpeg, used XWindowSize and YWindowSize to set the size of the image
+	int targetWidth = 0;
+	int targetHeight = 0;
+	getQualityPresetDimensions(QualityPreset, targetWidth, targetHeight);
 
-	//Low Quality, Fast Speed, Small Size
-	// sprintf(baseCommand, "ffmpeg -loglevel quiet -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
-	// 	"-c:v libx264 -threads 0 -preset fast -y -pix_fmt yuv420p -crf 0 -vf vflip \"%s\"", XWindowSize, YWindowSize, ts.c_str());
+	// H.264 (yuv420p) prefers even dimensions, so pad the preset size by up to one pixel.
+	int outW = targetWidth + (targetWidth % 2);
+	int outH = targetHeight + (targetHeight % 2);
+	int padX = (outW - targetWidth) / 2;
+	int padY = (outH - targetHeight) / 2;
 
-	//Medium Quality, Medium Speed, Medium Size
-	// sprintf(baseCommand, "ffmpeg -loglevel quiet -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
-	// 			"-c:v libx264 -threads 0 -preset medium -y -pix_fmt yuv420p -crf 0 -vf vflip \"%s\"", XWindowSize, YWindowSize, ts.c_str());
+	const bool isScPreset = (QualityPreset == 3);
+	if (isScPreset)
+	{
+		// SC uses stricter encoding settings for conference submission output.
+		sprintf(baseCommand, "ffmpeg -loglevel error -f rawvideo -pix_fmt rgba -s %dx%d -r 60 -i - "
+			"-c:v libx264 -pix_fmt yuv420p -profile:v high -level 4.2 -crf 10 -preset veryslow -tune film -threads 0 -movflags +faststart -y -vf \"scale=%d:%d,pad=%d:%d:%d:%d\" \"%s\"", 
+			CaptureWidth, CaptureHeight, targetWidth, targetHeight, outW, outH, padX, padY, ts.c_str());
+	}
+	else
+	{
+		// Standard presets keep a lighter encode while still scaling to the selected size.
+		sprintf(baseCommand, "ffmpeg -loglevel error -f rawvideo -pix_fmt rgba -s %dx%d -r 60 -i - "
+			"-c:v libx264 -pix_fmt yuv420p -profile:v high -level 4.0 -crf 14 -preset slow -tune film -threads 0 -movflags +faststart -y -vf \"scale=%d:%d,pad=%d:%d:%d:%d\" \"%s\"", 
+			CaptureWidth, CaptureHeight, targetWidth, targetHeight, outW, outH, padX, padY, ts.c_str());
+	}
 
-
-
-	// General: High quality, compatible, Medium Size
-	// H.264 (yuv420p) needs even width/height; encoders may fail on odd sizes.
-	// Pad by up to 1 pixel (minimal impact) so ffmpeg/libx264 accepts the frames.
-	int outW = CaptureWidth + (CaptureWidth % 2); // round up to even
-	int outH = CaptureHeight + (CaptureHeight % 2);
-	int padX = (outW - CaptureWidth) / 2;
-	int padY = (outH - CaptureHeight) / 2;
-	sprintf(baseCommand, "ffmpeg -loglevel error -f rawvideo -pix_fmt rgba -s %dx%d -r 60 -i - "
-		"-c:v libx264 -pix_fmt yuv420p -profile:v high -level 4.0 -crf 14 -preset slow -tune film -threads 0 -movflags +faststart -y -vf \"vflip,pad=%d:%d:%d:%d\" \"%s\"", 
-		CaptureWidth, CaptureHeight, outW, outH, padX, padY, ts.c_str());
-	//use the command string to create the output file name
 	MovieFile = popen(baseCommand, "w");
-
-	//Buffer = new int[XWindowSize*YWindowSize];
 	Buffer = (unsigned char*)malloc(4 * CaptureWidth * CaptureHeight);
 
 	Simulation.isRecording = true;
@@ -339,26 +356,16 @@ void screenShot()
 	FILE* ScreenShotFile;
 	unsigned char* buffer; //unsigned char because we are using RGBA data, which is 4 bytes per pixel, 1 char = 1 byte
 
-	char cmd[512]; // Command to run ffmpeg with the correct parameters for capturing a screenshot
+	char cmd[512];
+	int targetWidth = 0;
+	int targetHeight = 0;
+	getQualityPresetDimensions(QualityPreset, targetWidth, targetHeight);
 
-	//commands for ffmpeg, use the locked capture size so screenshots match recorded frames
-	sprintf(cmd, "ffmpeg -loglevel quiet -framerate 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
-				"-c:v libx264rgb -threads 0 -preset fast -y -crf 0 -vf vflip output1.mp4", 
-				CaptureWidth, CaptureHeight);
-
-	// Capture a single frame and write a lossless PNG directly to preserve colors.
-	// We generate a timestamped filename up-front and write one frame (-frames:v 1).
 	string ts = getTimeStamp();
-	sprintf(cmd, "ffmpeg -loglevel error -f rawvideo -pix_fmt rgba -s %dx%d -i - -frames:v 1 -vf vflip -c:v png \"%s.png\"", 
-				CaptureWidth, CaptureHeight, ts.c_str());
-
-	//SC 25 submission
-	//sprintf(cmd, "ffmpeg -loglevel quiet -framerate 60 -f rawvideo -pix_fmt rgba -s 3840x2160 -i - -c:v libx264rgb -threads 0 -preset fast -y -crf 0 -vf vflip output1.mp4");
-
-	//const char* cmd = "ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s 1000x1000 -i - "
-	//              "-threads 0 -preset fast -y -pix_fmt yuv420p -crf 21 -vf vflip output1.mp4";
+	// Reuse the same preset size for screenshots so the output matches the chosen quality.
+	sprintf(cmd, "ffmpeg -loglevel error -f rawvideo -pix_fmt rgba -s %dx%d -i - -frames:v 1 -vf \"scale=%d:%d,vflip\" -c:v png \"%s.png\"", 
+				CaptureWidth, CaptureHeight, targetWidth, targetHeight, ts.c_str());
 	
-	//open the pipe to ffmpeg and allocate the buffer for the screenshot with the size of 4*XWin* YWin to hold the RGBA data
 	ScreenShotFile = popen(cmd, "w");
 	buffer = (unsigned char*)malloc(4 * CaptureWidth * CaptureHeight);
 	

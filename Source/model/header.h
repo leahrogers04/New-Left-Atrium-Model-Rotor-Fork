@@ -158,6 +158,7 @@ extern simulationSwitchesStructure Simulation;
 extern FILE* MovieFile;
 extern unsigned char* Buffer;
 extern int CaptureWidth, CaptureHeight;
+extern int QualityPreset;
 
 extern dim3 BlockNodes, GridNodes;
 extern dim3 BlockMuscles, GridMuscles;

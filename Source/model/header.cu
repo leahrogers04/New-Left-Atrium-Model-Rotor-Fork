@@ -169,6 +169,7 @@ simulationSwitchesStructure Simulation;
 FILE* MovieFile; // File that holds all the movie frames.
 unsigned char* Buffer; // Buffer where you create each frame for a movie or the one frame for a screen shot.
 int CaptureWidth, CaptureHeight; // Locked capture size (set when capture starts)
+int QualityPreset = 0; // Preset for recording and screenshots: 0=Low, 1=Medium, 2=High, 3=SC
 
 // Used to setup your CUDA device
 // These are initialized in SVT.cu/setupCudaEnvironment().

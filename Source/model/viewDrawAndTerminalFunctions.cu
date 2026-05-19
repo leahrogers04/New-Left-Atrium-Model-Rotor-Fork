@@ -857,6 +857,12 @@ void createGUI()
 		}
 		ShowTooltip("(F4)");
 
+		// Quality preset dropdown
+		ImGui::SameLine();
+		const char* presetOptions[] = { "Low (1080p@60)", "Medium (1440p@60)", "High (4K@60)", "SC (4K, specific encoding)" };
+		ImGui::Combo("##QualityPreset", &QualityPreset, presetOptions, 4);
+		ShowTooltip("Select the shared recording/screenshot quality preset");
+
         // Screenshot button
         if (ImGui::Button("Screenshot"))
         {
