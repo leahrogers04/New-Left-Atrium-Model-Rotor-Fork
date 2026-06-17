@@ -807,10 +807,7 @@ void KeyPressed(GLFWwindow* window, int key, int scancode, int action, int mods)
 	switch (key) 
 	{
 		case GLFW_KEY_ESCAPE: // Shift + Escape to exit
-			if (mods & GLFW_MOD_SHIFT)
-			{
-				glfwSetWindowShouldClose(window, GLFW_TRUE);
-			}
+			glfwSetWindowShouldClose(window, GLFW_TRUE);
 			break;
 
 		case GLFW_KEY_F1: // F1 key to toggle run/pause
