@@ -80,20 +80,21 @@ void ShowIdentifiedNodesBox()
 {
 	ImGui::TextColored(ImVec4(1.0f, 0.5f, 1.0f, 1.0f), "Click on nodes to identify them");
 	ImGui::BeginChild("IdentifiedNodes", ImVec2(0, 120), true);
-	bool foundAny = false;
+	int k = 0;
 	for (int i = 0; i < NumberOfNodes; i++)
 	{
 		// if the node is colored magenta, it is identified. Magenta color: (1.0, 0.0, 1.0)
 		if (Node[i].isDrawNode && Node[i].color.x == 1.0f && Node[i].color.y == 0.0f && Node[i].color.z == 1.0f)
 		{
-			foundAny = true;
 			ImGui::Text("Node ID: %d", i);
+			k++;
 		}
 	}
-	if (!foundAny)
+	ImGui::Text("Number of identified nodes: %d", k);
+	/*if (!foundAny)
 	{
 		ImGui::TextDisabled("No nodes identified yet");
-	}
+	}*/
 	ImGui::EndChild();
 	if (ImGui::Button("Clear Identified Nodes"))
 	{
