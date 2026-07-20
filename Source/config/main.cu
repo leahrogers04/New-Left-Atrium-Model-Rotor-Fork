@@ -209,7 +209,7 @@ int main(int argc, char** argv)
 	}
 	else // Frustum view
 	{
-		glFrustum(-aspect, aspect, -1.0, 1.0, 1.0, 100.0); // Perspective projection
+		glFrustum(-aspect, aspect, -1.0, 1.0, Near, Far); // Perspective projection
 	}
     
     // Reset modelview matrix

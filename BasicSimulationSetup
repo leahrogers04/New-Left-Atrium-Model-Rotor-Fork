@@ -40,8 +40,7 @@ Sphere136k
 
 Place the Nodes and Muscle file you would like to run here.
 
---InputFileName =  3DIdealLAtrium2.3K_5-6-2026_10.40.26.bin
-
+--InputFileName =  200By600mm200X600Nodes.bin
 Name of previous run files that were stored in GitHub.
 test
 
@@ -51,7 +50,7 @@ run that you want to share on GitHub for everyone to use, you will need to manua
  
 Place the name of the previous run file you would like to execute here.
 
---PreviousRunFileName = test
+--PreviousRunFileName = CV_Hetero
 
 Note: You will only read from a (nodes and muscle file) or a (previous run file), not both.
 
@@ -69,7 +68,7 @@ It should be a float.
 Set the size of a point drawn if shperes are turned off but you still want to see the node. A good value is 5.0 to 10.0.
 It should be a float.
 
---NodePointSize = 10.0;
+--NodePointSize = 2.5;
 
 If you want to turn off muscle contractions and just observe the electrical process, you can do so by setting this flag to 0.
 1 (true) turns the muscle contraction on.

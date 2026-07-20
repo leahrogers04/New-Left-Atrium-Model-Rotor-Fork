@@ -61,7 +61,7 @@ void reshape(GLFWwindow* window, int width, int height)
 	}
 	else // Frustum view
 	{
-		glFrustum(-aspect, aspect, -1.0, 1.0, 1.0, 100.0); // Frustum projection
+		glFrustum(-aspect, aspect, -1.0, 1.0, Near, Far); // Frustum projection
 	}
 
 	glMatrixMode(GL_MODELVIEW);

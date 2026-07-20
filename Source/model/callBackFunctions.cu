@@ -61,7 +61,7 @@ void reshape(GLFWwindow* window, int width, int height)
 	}
 	else // Frustum view
 	{
-		glFrustum(-aspect, aspect, -1.0, 1.0, 1.0, 100.0); // Frustum projection
+		glFrustum(-aspect, aspect, -1.0, 1.0, Near, Far); // Frustum projection
 	}
 
 	glMatrixMode(GL_MODELVIEW);
@@ -1177,7 +1177,7 @@ void keyHeld(GLFWwindow* window)
 	// Copy nodes from GPU once per frame
     copyNodesFromGPU();
 
-	float dAngle = 0.01;
+	float dAngle = 0.001; //was 0.01
 	float zoom = 0.01*RadiusOfLeftAtrium;
 	float temp;
 	float4 lookVector;
@@ -1673,6 +1673,7 @@ void myMouse(GLFWwindow* window, int button, int action, int mods)
 							
 							cudaMemcpy( NodeGPU, Node, NumberOfNodes*sizeof(nodeAttributesStructure), cudaMemcpyHostToDevice );
 							cudaErrorCheck(__FILE__, __LINE__);
+							printf("\n Ectopic Event Node Number = %d, Time = %f\n", i, RunTime);
 						}
 						
 						if(Simulation.isInFindNodeMode)
