@@ -40,7 +40,7 @@ Sphere136k
 
 Place the Nodes and Muscle file you would like to run here.
 
---InputFileName =  200By600mm200X600Nodes.bin
+--InputFileName =  Rand200X200.bin
 Name of previous run files that were stored in GitHub.
 test
 
