@@ -416,8 +416,8 @@ int main(int argc, char** argv)
 	YWindowSize = 1000; //1000
 
 	// Clip plains
-	Near = 0.2;
-	Far = 80.0*RadiusOfLeftAtrium;
+	Near = 2.0;
+	Far = 400.0;
 
 	//Where your eye is located
 	EyeX = 0.0*RadiusOfLeftAtrium;

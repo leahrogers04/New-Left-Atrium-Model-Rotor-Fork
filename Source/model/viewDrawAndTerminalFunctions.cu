@@ -715,6 +715,8 @@ void drawPicture()
 	// Puts a ball at the location of the mouse if a mouse function is on.
 	if(Simulation.isInMouseFunctionMode)
 	{
+		//printf("ViewFlag = %d\n", Simulation.ViewFlag);   // <-- ADD THIS LINE
+
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -1095,7 +1097,7 @@ void createGUI()
 
 		// Selection area slider
 		float hitMult = HitMultiplier;
-		if (ImGui::SliderFloat("Selection Area", &hitMult, 0.0f, 0.2f, "%.3f", ImGuiSliderFlags_AlwaysClamp))
+		if (ImGui::SliderFloat("Selection Area", &hitMult, 0.0f, 1.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp))
 		{
 			HitMultiplier = hitMult;
 		}

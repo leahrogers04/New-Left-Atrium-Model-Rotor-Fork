@@ -54,6 +54,7 @@ void reshape(GLFWwindow* window, int width, int height)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
+	
 	//now we need to maintain the same aspect ratio for both orthogonal and frustum view
 	if(Simulation.ViewFlag == 0) // Orthogonal view
 	{
@@ -298,6 +299,11 @@ string getTimeStamp()
 */
 void movieOn()
 {
+	int fbWidth, fbHeight;
+	glfwGetFramebufferSize(Window, &fbWidth, &fbHeight);
+	CaptureWidth = fbWidth;
+	CaptureHeight = fbHeight;
+
 	string ts = getTimeStamp();
 	ts.append(".mp4");
 
@@ -305,6 +311,8 @@ void movieOn()
 	int targetWidth = 0;
 	int targetHeight = 0;
 	getQualityPresetDimensions(QualityPreset, targetWidth, targetHeight);
+	const int movieFps = 30;
+	const char* movieBitrate = "18M";
 
 	// H.264 (yuv420p) prefers even dimensions, so pad the preset size by up to one pixel.
 	int outW = targetWidth + (targetWidth % 2);
@@ -312,19 +320,30 @@ void movieOn()
 	int padX = (outW - targetWidth) / 2;
 	int padY = (outH - targetHeight) / 2;
 
-	const bool isScPreset = (QualityPreset == 3);
+	/*const bool isScPreset = (QualityPreset == 3);
 	if (isScPreset)
 	{
 		// SC uses stricter encoding settings for conference submission output.
 		sprintf(baseCommand, "ffmpeg -loglevel error -f rawvideo -pix_fmt rgba -s %dx%d -r 60 -i - "
-			"-c:v libx264 -pix_fmt yuv420p -profile:v high -level 4.2 -crf 10 -preset veryslow -tune film -threads 0 -movflags +faststart -y -vf \"scale=%d:%d,pad=%d:%d:%d:%d\" \"%s\"", 
+			"-c:v libx264 -pix_fmt yuv420p -profile:v high -level 4.2 -crf 10 -preset veryslow -tune film -threads 0 -movflags +faststart -y -vf \"vflip, scale=%d:%d,pad=%d:%d:%d:%d\" \"%s\"", 
 			CaptureWidth, CaptureHeight, targetWidth, targetHeight, outW, outH, padX, padY, ts.c_str());
+	}*/
+	const bool isScPreset = (QualityPreset == 3);
+	if (isScPreset)
+	{
+		// SC uses stricter encoding settings for conference submission output.
+		sprintf(baseCommand, "ffmpeg -loglevel error -f rawvideo -pix_fmt rgba -s %dx%d -r %d -i - "
+		"-c:v libx264 -pix_fmt yuv420p -profile:v high -level 4.2 -preset veryslow -tune film -threads 0 "
+		"-r %d -t 120 -b:v %s -minrate %s -maxrate %s -bufsize 36M -x264-params \"nal-hrd=cbr:force-cfr=1\" "
+		"-movflags +faststart -y -vf \"scale=%d:%d,pad=%d:%d:%d:%d\" \"%s\"",
+		CaptureWidth, CaptureHeight, movieFps, movieFps, movieBitrate, movieBitrate, movieBitrate,
+		targetWidth, targetHeight, outW, outH, padX, padY, ts.c_str());
 	}
 	else
 	{
 		// Standard presets keep a lighter encode while still scaling to the selected size.
 		sprintf(baseCommand, "ffmpeg -loglevel error -f rawvideo -pix_fmt rgba -s %dx%d -r 60 -i - "
-			"-c:v libx264 -pix_fmt yuv420p -profile:v high -level 4.0 -crf 14 -preset slow -tune film -threads 0 -movflags +faststart -y -vf \"scale=%d:%d,pad=%d:%d:%d:%d\" \"%s\"", 
+			"-c:v libx264 -pix_fmt yuv420p -profile:v high -level 4.0 -crf 14 -preset slow -tune film -threads 0 -movflags +faststart -y -vf \"vflip, scale=%d:%d,pad=%d:%d:%d:%d\" \"%s\"", 
 			CaptureWidth, CaptureHeight, targetWidth, targetHeight, outW, outH, padX, padY, ts.c_str());
 	}
 
@@ -352,6 +371,12 @@ void movieOff()
 */
 void screenShot()
 {	
+	int fbWidth, fbHeight;
+	glfwGetFramebufferSize(Window, &fbWidth, &fbHeight);
+	CaptureWidth = fbWidth;
+	CaptureHeight = fbHeight;
+
+
 	bool savedPauseState;
 	FILE* ScreenShotFile;
 	unsigned char* buffer; //unsigned char because we are using RGBA data, which is 4 bytes per pixel, 1 char = 1 byte
@@ -1177,7 +1202,7 @@ void keyHeld(GLFWwindow* window)
 	// Copy nodes from GPU once per frame
     copyNodesFromGPU();
 
-	float dAngle = 0.001; //was 0.01
+	float dAngle = 0.005; //was 0.01
 	float zoom = 0.01*RadiusOfLeftAtrium;
 	float temp;
 	float4 lookVector;
@@ -1449,6 +1474,8 @@ void mousePassiveMotionCallback(GLFWwindow* window, double x, double y)
 	float sensitivityMultiplier = 1.2; // Sensitivity multiplier for mouse movement
 	MouseX = ( 2.0*x/XWindowSize - 1.0)*RadiusOfLeftAtrium *sensitivityMultiplier;
 	MouseY = (-2.0*y/YWindowSize + 1.0)*RadiusOfLeftAtrium *sensitivityMultiplier;
+
+	
 }
 
 /*
@@ -1600,6 +1627,7 @@ void myMouse(GLFWwindow* window, int button, int action, int mods)
 			}
 			else
 			{
+				bool alreadyPrintedEctopic = false;
 				for(int i = 0; i < NumberOfNodes; i++)
 				{
 					dx = MouseX - Node[i].position.x;
@@ -1673,7 +1701,12 @@ void myMouse(GLFWwindow* window, int button, int action, int mods)
 							
 							cudaMemcpy( NodeGPU, Node, NumberOfNodes*sizeof(nodeAttributesStructure), cudaMemcpyHostToDevice );
 							cudaErrorCheck(__FILE__, __LINE__);
-							printf("\n Ectopic Event Node Number = %d, Time = %f\n", i, RunTime);
+							//printf("\n Ectopic Event Node Number = %d, Time = %f\n", i, RunTime);
+							if(!alreadyPrintedEctopic)
+                            {
+                                printf("\n Ectopic Event Node Number = %d, Time = %f\n", i, RunTime);
+                                alreadyPrintedEctopic = true;
+                            }
 						}
 						
 						if(Simulation.isInFindNodeMode)

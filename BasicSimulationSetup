@@ -37,10 +37,12 @@ Rand100X100X10
 Cross200X200
 TestSphere
 Sphere136k
+200By600mm200X600Nodes1.bin
+CT_Example.bin
 
 Place the Nodes and Muscle file you would like to run here.
 
---InputFileName =  IdealLeftAtrium13.0KNotTriangle.bin
+--InputFileName = 200By600mm200X600Nodes1.bin
 Name of previous run files that were stored in GitHub.
 test
 
@@ -50,7 +52,8 @@ run that you want to share on GitHub for everyone to use, you will need to manua
  
 Place the name of the previous run file you would like to execute here.
 
---PreviousRunFileName = Class1_Trial17
+--PreviousRunFileName = Obstacle1_Leah
+Class1_Trial17
 
 Note: You will only read from a (nodes and muscle file) or a (previous run file), not both.
 
